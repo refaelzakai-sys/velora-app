@@ -3,10 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- ═══ PRIMARY SEO ═══ -->
 <title>Velora: Connect Chat Call Effortlessly</title>
-<meta name="description" content="Your all-in-one messaging app for simple and secure communication.">
-<meta name="keywords" content="messaging app, chat app, video call, voice call, secure messaging, real-time chat, group chat, business messaging, Velora">
-<meta name="theme-color" content="#0A0A0F">
+<meta name="description" content="Velora: Your all-in-one messaging app for simple and secure communication.">
+<meta name="keywords" content="צ'אט,הודעות,אפליקציית מסרים,Velora,messenger,chat,instant messaging,secure chat,real-time messaging,group chat,video call,voice call,business messaging,פלטפורמת מסרים,תקשורת,אפליקציה,חינמי,בטוח,הצפנה,WhatsApp alternative,Telegram alternative,chat app,messaging platform,mobile chat,end-to-end encryption,status updates,broadcast channels,bot,business account,product catalog">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Rafael Digital">
+<meta name="theme-color" content="#6C63FF">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Velora">
+
+<!-- ═══ OPEN GRAPH ═══ -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Velora: Connect Chat Call Effortlessly">
+<meta property="og:description" content="Velora: Your all-in-one messaging app for simple and secure communication.">
+<meta property="og:image" content="https://i.ibb.co/RGmVcHyd/velora-logo.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:url" content="https://velora-617fa.web.app">
+<meta property="og:site_name" content="Velora">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Velora: Connect Chat Call Effortlessly">
+<meta name="twitter:description" content="Your all-in-one messaging app for simple and secure communication.">
+<meta name="twitter:image" content="https://i.ibb.co/RGmVcHyd/velora-logo.png">
+
+<!-- ═══ FAVICON (inline SVG data-uri + ibb fallback) ═══ -->
+<link rel="icon" type="image/png" href="https://i.ibb.co/RGmVcHyd/velora-logo.png">
+<link rel="apple-touch-icon" href="https://i.ibb.co/RGmVcHyd/velora-logo.png">
+
+<!-- ═══ PWA MANIFEST (inline blob) ═══ -->
+<script>
+(function(){
+  const manifest = {
+    name: "Velora – Connect Chat Call",
+    short_name: "Velora",
+    description: "Your all-in-one messaging app for simple and secure communication.",
+    start_url: "./",
+    display: "standalone",
+    background_color: "#0A0A0F",
+    theme_color: "#6C63FF",
+    orientation: "portrait-primary",
+    icons: [
+      { src: "https://i.ibb.co/RGmVcHyd/velora-logo.png", sizes: "192x192", type: "image/png" },
+      { src: "https://i.ibb.co/RGmVcHyd/velora-logo.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel = 'manifest'; link.href = url;
+  document.head.appendChild(link);
+})();
+</script>
+
+<!-- ═══ SERVICE WORKER REGISTRATION ═══ -->
+<script>
+if ('serviceWorker' in navigator) {
+  const swCode = `
+const CACHE = 'velora-v1';
+const ASSETS = ['./'];
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
+});
+self.addEventListener('fetch', e => {
+  if (e.request.mode === 'navigate') {
+    e.respondWith(fetch(e.request).catch(() => caches.match('./')));
+  }
+});
+  `;
+  const swBlob = new Blob([swCode], {type:'application/javascript'});
+  const swURL  = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swURL).catch(()=>{});
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
@@ -748,6 +824,79 @@ html, body {
   .account-type-cards { grid-template-columns: 1fr; }
   .admin-stat-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ===== LOADING TRANSITION SCREEN ===== */
+#loadingScreen {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--bg-base);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center; gap: 20px;
+}
+#loadingScreen.active { display: flex; }
+.loading-logo-spin {
+  width: 72px; height: 72px; border-radius: 22px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  animation: logoPulse 1.6s ease-in-out infinite;
+}
+.loading-logo-spin img { width:100%; height:100%; object-fit:cover; border-radius:22px; }
+@keyframes logoPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(108,99,255,0.5); transform: scale(1); }
+  50%      { box-shadow: 0 0 0 18px rgba(108,99,255,0);  transform: scale(1.04); }
+}
+.loading-bar-wrap {
+  width: 160px; height: 3px; background: var(--bg-elevated);
+  border-radius: 999px; overflow: hidden;
+}
+.loading-bar-inner {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  animation: loadBar 1.4s ease-in-out infinite;
+}
+@keyframes loadBar {
+  0%   { width: 0%; margin-left: 0%; }
+  50%  { width: 70%; margin-left: 15%; }
+  100% { width: 0%; margin-left: 100%; }
+}
+.loading-text { font-size: 13px; color: var(--text-muted); letter-spacing: 0.3px; }
+
+/* ===== SPLASH FOOTER ===== */
+.splash-footer {
+  position: absolute; bottom: 24px; left: 0; right: 0;
+  text-align: center; font-size: 12.5px; color: var(--text-muted);
+}
+.splash-footer a {
+  color: var(--accent); text-decoration: none; font-weight: 500;
+  transition: color var(--transition);
+}
+.splash-footer a:hover { color: var(--accent-2); }
+
+/* ===== PWA INSTALL BANNER ===== */
+#pwaInstallBanner {
+  display: none; position: fixed; bottom: calc(var(--nav-h) + 12px);
+  left: 16px; right: 16px; z-index: 200;
+  background: var(--bg-elevated); border: 1px solid var(--border-accent);
+  border-radius: var(--radius-md); padding: 14px 16px;
+  align-items: center; gap: 12px;
+  box-shadow: 0 8px 32px rgba(108,99,255,0.3);
+  animation: slideUpBanner 0.3s ease;
+}
+#pwaInstallBanner.show { display: flex; }
+@keyframes slideUpBanner { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+.pwa-banner-icon { font-size: 28px; flex-shrink:0; }
+.pwa-banner-text { flex:1; }
+.pwa-banner-title { font-weight: 700; font-size: 14px; }
+.pwa-banner-sub { font-size: 12px; color: var(--text-secondary); }
+.pwa-install-btn {
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 8px; padding: 8px 14px; font-size: 13px;
+  font-weight: 600; cursor: pointer; flex-shrink: 0; font-family: var(--font-body);
+}
+.pwa-dismiss-btn {
+  background: transparent; border: none; color: var(--text-muted);
+  cursor: pointer; font-size: 18px; flex-shrink:0; padding: 4px;
+}
 </style>
 </head>
 <body>
@@ -755,12 +904,25 @@ html, body {
 <!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- ===== LOADING TRANSITION SCREEN ===== -->
+<div id="loadingScreen">
+  <div class="loading-logo-spin">
+    <img src="https://i.ibb.co/RGmVcHyd/velora-logo.png" alt="Velora"
+         onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\'font-family:var(--font-display);font-weight:800;font-size:30px;color:#fff\'>V</span>'">
+  </div>
+  <div class="loading-bar-wrap"><div class="loading-bar-inner"></div></div>
+  <div class="loading-text" id="loadingText">Loading your chats…</div>
+</div>
+
 <!-- ===== SPLASH / AUTH ===== -->
 <div id="splash">
   <div class="splash-orb splash-orb-1"></div>
   <div class="splash-orb splash-orb-2"></div>
   <div class="splash-content">
-    <div class="splash-logo" id="splashLogo">V</div>
+    <div class="splash-logo" id="splashLogo">
+      <img src="https://i.ibb.co/RGmVcHyd/velora-logo.png" alt="Velora Logo"
+           onerror="this.style.display='none';this.parentElement.textContent='V'">
+    </div>
     <div class="splash-title">Velora</div>
     <div class="splash-tagline">Connect · Chat · Call Effortlessly</div>
     <button class="btn-google" id="btnGoogleLogin">
@@ -773,6 +935,21 @@ html, body {
       Continue with Google
     </button>
   </div>
+  <!-- Footer — translated dynamically by JS -->
+  <div class="splash-footer" id="splashFooter">
+    <span id="footerText">Created with love by: </span><a href="https://did.li/Rafael-Digital-office" target="_blank" rel="noopener noreferrer" id="footerLink">Rafael Digital</a>
+  </div>
+</div>
+
+<!-- ===== PWA INSTALL BANNER ===== -->
+<div id="pwaInstallBanner">
+  <div class="pwa-banner-icon">📲</div>
+  <div class="pwa-banner-text">
+    <div class="pwa-banner-title">Install Velora</div>
+    <div class="pwa-banner-sub">Add to home screen for the best experience</div>
+  </div>
+  <button class="pwa-install-btn" onclick="triggerPWAInstall()">Install</button>
+  <button class="pwa-dismiss-btn" onclick="dismissPWABanner()">✕</button>
 </div>
 
 <!-- ===== ACCOUNT TYPE MODAL ===== -->
@@ -1078,83 +1255,192 @@ function getInitials(name) {
 const COLORS = ['#6C63FF','#FF6584','#43D9A2','#FFB547','#FF5C7A','#00C9E0','#A78BFA','#F59E0B'];
 function getColorForId(id) { return COLORS[id?.charCodeAt(0)%COLORS.length||0]; }
 
+// ───── PWA INSTALL ─────
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  // Show banner after 3s if not already installed
+  setTimeout(() => {
+    if (!window.matchMedia('(display-mode: standalone)').matches) {
+      document.getElementById('pwaInstallBanner').classList.add('show');
+    }
+  }, 3000);
+});
+window.triggerPWAInstall = async function() {
+  if (!deferredInstallPrompt) { showToast('To install: use browser menu → "Add to Home Screen"', 'info'); return; }
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  if (outcome === 'accepted') { showToast('Velora installed! 🎉', 'success'); }
+  deferredInstallPrompt = null;
+  document.getElementById('pwaInstallBanner').classList.remove('show');
+};
+window.dismissPWABanner = function() {
+  document.getElementById('pwaInstallBanner').classList.remove('show');
+};
+
+// ───── FOOTER I18N ─────
+(function localizeFooter() {
+  const lang = (navigator.language || navigator.userLanguage || 'en').split('-')[0].toLowerCase();
+  const translations = {
+    he: { pre: 'נוצר באהבה על ידי: ', link: 'רפאל דיגיטל' },
+    ar: { pre: 'صُنع بحب بواسطة: ', link: 'رافاييل ديجيتال' },
+    es: { pre: 'Creado con amor por: ', link: 'Rafael Digital' },
+    fr: { pre: 'Créé avec amour par : ', link: 'Rafael Digital' },
+    de: { pre: 'Mit Liebe erstellt von: ', link: 'Rafael Digital' },
+    pt: { pre: 'Criado com amor por: ', link: 'Rafael Digital' },
+    ru: { pre: 'Создано с любовью: ', link: 'Rafael Digital' },
+    zh: { pre: '由以下人员用心创作：', link: 'Rafael Digital' },
+    ja: { pre: '愛を込めて制作：', link: 'Rafael Digital' },
+    it: { pre: 'Creato con amore da: ', link: 'Rafael Digital' },
+  };
+  const t = translations[lang] || { pre: 'Created with love by: ', link: 'Rafael Digital' };
+  const ft = document.getElementById('footerText');
+  const fl = document.getElementById('footerLink');
+  if (ft) ft.textContent = t.pre;
+  if (fl) fl.textContent = t.link;
+})();
+
+// ───── LOADING SCREEN HELPERS ─────
+function showLoadingScreen(msg) {
+  const ls = document.getElementById('loadingScreen');
+  const lt = document.getElementById('loadingText');
+  if (lt) lt.textContent = msg || 'Loading…';
+  ls.classList.add('active');
+}
+function hideLoadingScreen() {
+  const ls = document.getElementById('loadingScreen');
+  ls.style.transition = 'opacity 0.4s ease';
+  ls.style.opacity = '0';
+  setTimeout(() => { ls.classList.remove('active'); ls.style.opacity = ''; }, 420);
+}
+
 // ───── AUTH ─────
 document.getElementById('btnGoogleLogin').addEventListener('click', async () => {
+  const btn = document.getElementById('btnGoogleLogin');
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  btn.textContent = 'Signing in…';
   try {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     await signInWithPopup(auth, provider);
   } catch(e) {
-    showToast('Sign-in failed: '+e.message, 'error');
+    btn.disabled = false;
+    btn.style.opacity = '';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px;flex-shrink:0"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Continue with Google`;
+    if (e.code !== 'auth/popup-closed-by-user') {
+      showToast('Sign-in failed: ' + (e.message || 'Unknown error'), 'error');
+    }
   }
 });
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
-    const userRef = doc(firestore, 'users', user.uid);
-    const snap = await getDoc(userRef);
-    if (!snap.exists()) {
-      // New user
-      const veloraId = generateVeloraId();
-      const userData = {
-        uid: user.uid,
-        name: user.displayName || 'Velora User',
-        photo: user.photoURL || '',
-        email: user.email,
-        veloraId,
-        accountType: 'regular',
-        createdAt: Date.now(),
-        lastSeen: Date.now(),
-        readReceipts: true,
-        lastSeenPrivacy: 'everyone',
-        bio: '👋 Hey there! I\'m using Velora.',
-        isAdmin: user.email === ADMIN_EMAIL
-      };
-      await setDoc(userRef, userData);
-      // Also write to RTDB for presence
-      await set(ref(db, `users/${user.uid}`), userData);
-      currentUserData = userData;
-      openModal('accountTypeModal');
-    } else {
-      currentUserData = snap.data();
-      // Update last seen & photo
-      await updateDoc(userRef, { lastSeen: Date.now(), photo: user.photoURL||'' });
-      await update(ref(db, `users/${user.uid}`), { lastSeen: Date.now(), photo: user.photoURL||'' });
-      showApp();
+    // Show loading screen immediately — this fixes the black screen
+    showLoadingScreen('Setting up your account…');
+    hideSplashInstant();
+
+    try {
+      const userRef = doc(firestore, 'users', user.uid);
+      const snap = await getDoc(userRef);
+
+      if (!snap.exists()) {
+        // New user — create profile
+        const veloraId = generateVeloraId();
+        const userData = {
+          uid: user.uid,
+          name: user.displayName || 'Velora User',
+          photo: user.photoURL || '',
+          email: user.email,
+          veloraId,
+          accountType: 'regular',
+          createdAt: Date.now(),
+          lastSeen: Date.now(),
+          readReceipts: true,
+          lastSeenPrivacy: 'everyone',
+          bio: '👋 Hey there! I\'m using Velora.',
+          isAdmin: user.email === ADMIN_EMAIL
+        };
+        await setDoc(userRef, userData);
+        await set(ref(db, `users/${user.uid}`), userData);
+        currentUserData = userData;
+        hideLoadingScreen();
+        openModal('accountTypeModal');
+      } else {
+        currentUserData = snap.data();
+        // Update presence
+        await Promise.all([
+          updateDoc(userRef, { lastSeen: Date.now(), photo: user.photoURL || '' }),
+          update(ref(db, `users/${user.uid}`), { lastSeen: Date.now(), photo: user.photoURL || '' })
+        ]);
+        hideLoadingScreen();
+        showApp();
+      }
+    } catch (err) {
+      console.error('Auth setup error:', err);
+      hideLoadingScreen();
+      showToast('Error loading profile. Please refresh.', 'error');
+      // Still try to show app with whatever data we have
+      if (currentUserData) showApp();
     }
   } else {
     currentUser = null;
     currentUserData = null;
-    hideSplash(false);
+    // Make sure splash is visible, app is hidden
+    const splash = document.getElementById('splash');
+    const app = document.getElementById('app');
+    splash.style.display = '';
+    splash.style.opacity = '1';
+    app.classList.remove('visible');
   }
 });
 
-function hideSplash(login) {
+function hideSplashInstant() {
   const splash = document.getElementById('splash');
-  splash.style.transition = 'opacity 0.5s ease';
+  splash.style.transition = 'opacity 0.35s ease';
   splash.style.opacity = '0';
-  setTimeout(() => splash.style.display = 'none', 500);
+  setTimeout(() => { splash.style.display = 'none'; }, 360);
+}
+
+function hideSplash(login) {
+  hideSplashInstant();
 }
 
 function showApp() {
-  hideSplash(true);
+  // Ensure splash is gone
+  const splash = document.getElementById('splash');
+  splash.style.display = 'none';
+
+  // Show app container — CRITICAL FIX: force display:flex then add visible class
   const app = document.getElementById('app');
+  app.style.display = 'flex';
   app.classList.add('visible');
+
+  // Render all pages
   renderProfilePage();
   renderChatList();
   renderUpdatesPage();
   renderCallsPage();
   buildDialer();
   buildSettingsPage();
-  // Update header logo
+
+  // Update header logo with user photo
+  const hl = document.getElementById('headerLogo');
   if (currentUserData?.photo) {
-    const hl = document.getElementById('headerLogo');
-    hl.innerHTML = `<img src="${currentUserData.photo}" onerror="this.style.display='none'">`;
+    hl.innerHTML = `<img src="${currentUserData.photo}" alt="" onerror="this.parentElement.innerHTML='${getInitials(currentUserData?.name||'V')}'">`;
+  } else {
+    hl.textContent = getInitials(currentUserData?.name || 'V');
   }
-  // Show admin badge if admin
+
+  // Admin welcome
   if (currentUserData?.isAdmin) {
-    showToast('👑 Admin mode active', 'info');
+    setTimeout(() => showToast('👑 Welcome back, Admin!', 'info'), 600);
   }
+
+  // Show category bar on chats tab
+  document.getElementById('categoryBar').style.display = 'flex';
 }
 
 // ───── ACCOUNT TYPE ─────
@@ -1167,11 +1453,15 @@ selectAccountType('regular');
 
 window.confirmAccountType = async function() {
   if (!currentUser) return;
-  const userRef = doc(firestore, 'users', currentUser.uid);
-  await updateDoc(userRef, { accountType: selectedAccountType });
-  await update(ref(db, `users/${currentUser.uid}`), { accountType: selectedAccountType });
-  currentUserData.accountType = selectedAccountType;
+  showLoadingScreen('Saving your preferences…');
+  try {
+    const userRef = doc(firestore, 'users', currentUser.uid);
+    await updateDoc(userRef, { accountType: selectedAccountType });
+    await update(ref(db, `users/${currentUser.uid}`), { accountType: selectedAccountType });
+    currentUserData.accountType = selectedAccountType;
+  } catch(e) { console.error(e); }
   closeModal('accountTypeModal');
+  hideLoadingScreen();
   showApp();
 };
 
@@ -1609,6 +1899,7 @@ function buildSettingsPage() {
       {icon:'🗑️',bg:'#FF5C7A',label:'Clear Cache',fn:'clearCache'},
     ]},
     { title: '', items: [
+      {icon:'📲',bg:'#6C63FF',label:'Install Velora App',fn:'installVeloraApp'},
       {icon:'🚪',bg:'#FF5C7A',label:'Sign Out',fn:'doSignOut',danger:true},
     ]}
   );
@@ -1686,9 +1977,17 @@ window.syncContacts = function() { showToast('Syncing Google Contacts… Registe
 window.clearCache = function() { showToast('Cache cleared successfully!', 'success'); };
 window.doSignOut = async function() {
   await signOut(auth);
-  document.getElementById('app').classList.remove('visible');
-  document.getElementById('splash').style.display='';
-  document.getElementById('splash').style.opacity='1';
+  const app = document.getElementById('app');
+  app.classList.remove('visible');
+  app.style.display = '';
+  const splash = document.getElementById('splash');
+  splash.style.display = '';
+  splash.style.opacity = '1';
+  const btn = document.getElementById('btnGoogleLogin');
+  if (btn) {
+    btn.disabled = false;
+    btn.style.opacity = '';
+  }
 };
 
 // ───── CONTACTS ─────
@@ -1810,8 +2109,17 @@ window.showProfileMenu = function() {
   showToast('Menu: New Group · Settings · Help');
 };
 
-// Show category bar by default (chats tab is active)
-document.getElementById('categoryBar').style.display = 'flex';
+// ───── INSTALL VELORA (PWA) called from settings ─────
+window.installVeloraApp = function() {
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    showToast('Velora is already installed! ✓', 'success');
+  } else if (deferredInstallPrompt) {
+    triggerPWAInstall();
+  } else {
+    showToast('To install: tap browser menu → "Add to Home Screen"', 'info');
+    document.getElementById('pwaInstallBanner').classList.add('show');
+  }
+};
 
 </script>
 </body>
