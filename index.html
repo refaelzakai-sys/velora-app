@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
+    <meta name="description" content="Velora: Connect Chat Call Effortlessly. Your all-in-one messaging app for simple and secure communication">
+    <meta name="keywords" content="צ'אט, הודעות, אפליקציית מסרים, Velora, secure chat, messaging app">
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,23 +17,104 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        :root { --b: #4da3ff; --bg: #0a0c10; --c: #161b22; --t: #e6edf3; --g: #8b949e; }
+        :root { 
+            --b: #4da3ff; 
+            --bg: #0a0c10; 
+            --t: #ffffff; 
+            --g: #8b949e; 
+        }
+        
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { background: var(--bg); color: var(--t); font-family: -apple-system, system-ui, sans-serif; height: 100dvh; display: flex; flex-direction: column; }
         
-        #login-screen { position: fixed; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: var(--bg); z-index: 10; }
-        .v-logo { font-size: 85px; font-weight: 900; color: var(--b); letter-spacing: -5px; margin-bottom: 20px; }
-        
-        .g-btn { 
-            background: white; color: black; border: none; padding: 18px 35px; border-radius: 50px; 
-            font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; 
-            gap: 12px; box-shadow: 0 4px 15px rgba(255,255,255,0.1); transition: 0.2s;
+        body { 
+            background: var(--bg); 
+            color: var(--t); 
+            font-family: -apple-system, system-ui, sans-serif; 
+            height: 100dvh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
 
-        #app { display: none; padding: 20px; flex: 1; overflow-y: auto; text-align: center; }
-        .user-card { background: var(--c); padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #333; }
-        .profile-pic { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 2px solid var(--b); }
-        .logout-btn { margin-top: 30px; background: none; color: #ff4d4d; border: none; font-size: 14px; cursor: pointer; }
+        /* --- Login Screen --- */
+        #login-screen { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            text-align: center; 
+            width: 100%;
+        }
+        
+        .v-logo { 
+            font-size: 70px; 
+            font-weight: 900; 
+            color: var(--b); 
+            letter-spacing: -3px; 
+            margin-bottom: 40px; 
+        }
+        
+        .g-btn { 
+            background: white; 
+            color: black; 
+            border: none; 
+            padding: 16px 30px; 
+            border-radius: 50px; 
+            font-size: 17px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            width: 85%; 
+            max-width: 300px; 
+            box-shadow: 0 4px 15px rgba(255,255,255,0.1); 
+            transition: transform 0.2s;
+        }
+        .g-btn:active { transform: scale(0.96); }
+        
+        .loader {
+            border: 3px solid #f3f3f3; 
+            border-top: 3px solid var(--b);
+            border-radius: 50%; 
+            width: 24px; 
+            height: 24px;
+            animation: spin 1s linear infinite; 
+            display: none; 
+            margin-top: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- App Screen (Empty State based on image) --- */
+        #app { 
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .welcome-title { 
+            font-size: 26px; 
+            font-weight: 600; 
+            margin-bottom: 15px; 
+            direction: rtl;
+        }
+        
+        .welcome-subtitle { 
+            color: var(--g); 
+            font-size: 16px; 
+            margin-bottom: 40px; 
+            direction: ltr;
+        }
+
+        .logout-link { 
+            color: var(--b); 
+            text-decoration: none; 
+            font-size: 18px; 
+            background: none; 
+            border: none; 
+            cursor: pointer; 
+        }
     </style>
 </head>
 <body>
@@ -39,21 +122,17 @@
     <div id="login-screen">
         <div class="v-logo">VELORA</div>
         <button id="login-btn" class="g-btn">Continue with Google</button>
+        <div id="login-loader" class="loader"></div>
     </div>
 
     <div id="app">
-        <div class="user-card">
-            <img id="u-img" class="profile-pic" src="">
-            <h2 id="u-name"></h2>
-            <p id="u-email" style="color:var(--g); font-size: 14px;"></p>
-        </div>
-        
-        <p style="margin-top:40px; color:var(--g);">המערכת שומרת את הפרטים שלך למסד הנתונים...</p>
-        
-        <button onclick="logout()" class="logout-btn">נתק חשבון</button>
+        <h2 id="u-name" class="welcome-title"></h2>
+        <p class="welcome-subtitle">.Welcome to the secure experience</p>
+        <button onclick="logout()" class="logout-link">Logout</button>
     </div>
 
     <script>
+        // הגדרות פיירבייס אמיתיות
         const firebaseConfig = {
             apiKey: "AIzaSyDunrG_booopCpxqpcGEhbqr5n-HY7glHU",
             authDomain: "velora-617fa.firebaseapp.com",
@@ -65,57 +144,75 @@
             measurementId: "G-ZC5E26QR9K"
         };
 
+        // אתחול
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
 
-        document.getElementById('login-btn').addEventListener('click', () => {
+        const loginBtn = document.getElementById('login-btn');
+        const loginLoader = document.getElementById('login-loader');
+        const loginScreen = document.getElementById('login-screen');
+        const appScreen = document.getElementById('app');
+        const uNameLabel = document.getElementById('u-name');
+
+        // פעולת התחברות - Popup למניעת שגיאות Missing State
+        loginBtn.addEventListener('click', () => {
+            loginBtn.style.display = 'none';
+            loginLoader.style.display = 'block';
+            
             const provider = new firebase.auth.GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
 
             auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
                 return auth.signInWithPopup(provider);
-            }).then(res => {
-                saveUserToDatabase(res.user);
-            }).catch(e => console.error(e));
+            }).then((result) => {
+                handleUserApp(result.user);
+            }).catch((error) => {
+                console.error("Login Error:", error);
+                loginBtn.style.display = 'block';
+                loginLoader.style.display = 'none';
+                if(error.code !== 'auth/popup-closed-by-user') {
+                    alert("שגיאת התחברות: " + error.message);
+                }
+            });
         });
 
-        auth.onAuthStateChanged(user => {
+        // האזנה קבועה לסטטוס חיבור
+        auth.onAuthStateChanged((user) => {
             if (user) {
-                showApp(user);
-                saveUserToDatabase(user); // עדכון פרטים בכל כניסה
+                handleUserApp(user);
             } else {
-                showLogin();
+                loginScreen.style.display = 'flex';
+                appScreen.style.display = 'none';
+                loginBtn.style.display = 'block';
+                loginLoader.style.display = 'none';
             }
         });
 
-        function saveUserToDatabase(user) {
-            const userRef = db.ref('users/' + user.uid);
-            userRef.update({
+        // פונקציה לטיפול במשתמש מחובר (שמירה ב-DB והצגת מסך)
+        function handleUserApp(user) {
+            // כתיבה למסד הנתונים האמיתי
+            db.ref('users/' + user.uid).update({
                 uid: user.uid,
-                displayName: user.displayName,
+                name: user.displayName,
                 email: user.email,
-                photoURL: user.photoURL,
                 lastSeen: firebase.database.ServerValue.TIMESTAMP
             });
+
+            // עדכון ה-UI לפי התמונה ששלחת
+            uNameLabel.innerText = "ברוך הבא, " + user.displayName;
+            
+            // החלפת מסכים
+            loginScreen.style.display = 'none';
+            appScreen.style.display = 'flex';
         }
 
-        function showApp(user) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-            document.getElementById('u-name').innerText = user.displayName;
-            document.getElementById('u-email').innerText = user.email;
-            document.getElementById('u-img').src = user.photoURL || 'https://via.placeholder.com/80';
-        }
-
-        function showLogin() {
-            document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('app').style.display = 'none';
-        }
-
-        function logout() {
-            auth.signOut().then(() => location.reload());
-        }
+        // התנתקות
+        window.logout = () => {
+            auth.signOut().then(() => {
+                location.reload();
+            });
+        };
     </script>
 </body>
 </html>
