@@ -1,109 +1,227 @@
-        // --- מנוע עיצוב טקסט וואטסאפ ---
- <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Velora Ultimate OS 7.0 - Full Build</title>
+    <title>Velora OS 17.1 - Ultimate Privacy</title>
     <style>
         :root { 
             --v-blue: #4da3ff; --v-bg: #0a0c10; --v-card: #161b22; 
             --v-text: #e6edf3; --v-gray: #8b949e; --v-red: #ff4d4d; --v-green: #2ecc71;
+            --v-purple: #a371f7; --v-gold: #f1c40f;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, sans-serif; }
-        body, html { height: 100dvh; margin: 0; background: var(--v-bg); color: var(--v-text); overflow: hidden; }
+        body, html { height: 100dvh; margin: 0; background: var(--v-bg); color: var(--v-text); overflow: hidden; user-select: none; }
         
         .app-shell { display: flex; flex-direction: column; height: 100dvh; }
         header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); background: #0d1117; }
         
-        .view-content { flex: 1; overflow-y: auto; padding-bottom: 100px; }
+        /* Stories Rail */
+        .stories-rail { display: flex; gap: 12px; padding: 15px; overflow-x: auto; background: #0d1117; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .story-circle { min-width: 65px; height: 65px; border-radius: 50%; border: 2px solid var(--v-blue); padding: 2px; position: relative; cursor: pointer; }
+        .story-circle .placeholder { width: 100%; height: 100%; border-radius: 50%; background: var(--v-card); display: flex; align-items: center; justify-content: center; }
+
+        .view-content { flex: 1; overflow-y: auto; padding-bottom: 80px; }
         .chat-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; position: relative; }
-        .chat-item.pinned { background: rgba(77, 163, 255, 0.08); border-right: 3px solid var(--v-blue); }
+        
+        /* Indicators */
+        .once-tag { background: var(--v-purple); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 5px; }
+        .timer-badge { font-size: 10px; color: var(--v-red); margin-right: 5px; }
 
-        /* Input Area */
-        .input-area { background: #0d1117; padding: 12px 15px; border-top: 1px solid rgba(255,255,255,0.1); }
-        .preview-box { background: var(--v-card); margin-bottom: 8px; padding: 12px; border-radius: 10px; display: none; border: 1px solid var(--v-blue); }
-        .preview-ctrl { display: flex; justify-content: space-between; align-items: center; font-size: 11px; margin-bottom: 8px; color: var(--v-gray); }
-
-        /* Switch UI */
-        .switch { width: 38px; height: 20px; background: #30363d; border-radius: 10px; position: relative; cursor: pointer; transition: 0.3s; }
-        .switch.on { background: var(--v-green); }
-        .switch::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; }
-        .switch.on::after { left: 20px; }
-
-        /* Admin & Modals */
+        /* Modals */
         .v-modal { position: fixed; inset: 0; background: var(--v-bg); z-index: 2000; transform: translateY(100%); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 25px; overflow-y: auto; }
         .v-modal.open { transform: translateY(0); }
-        .v-btn { background: var(--v-blue); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; margin: 8px 0; font-size: 14px; }
-        
+        .v-btn { background: var(--v-blue); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; margin: 8px 0; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        /* PIN Pad */
+        .pin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 280px; margin: 20px auto; }
+        .pin-btn { background: var(--v-card); border: none; color: white; border-radius: 50%; width: 65px; height: 65px; font-size: 20px; cursor: pointer; }
+
         .v-nav { height: 75px; background: var(--v-card); display: flex; border-top: 1px solid rgba(255,255,255,0.1); position: fixed; bottom: 0; width: 100%; }
         .v-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--v-gray); font-size: 11px; cursor: pointer; }
-        .v-nav-item.active { color: var(--v-blue); }
-
-        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="v-modal open" style="justify-content: center; align-items: center; text-align: center;">
-        <h1 style="color:var(--v-blue); font-size: 45px; margin:0; letter-spacing: 2px;">VELORA</h1>
-        <p id="login-status" style="color:var(--v-gray); margin-bottom: 40px;">Initializing System...</p>
-        <button onclick="login('rplzky7@gmail.com')" class="v-btn" style="width:auto; padding: 15px 45px; border-radius: 30px;">כניסה כמנהל מערכת</button>
-    </div>
-
     <div class="app-shell">
         <header>
             <h2 id="app-title">Velora</h2>
-            <div style="display:flex; gap:15px; align-items: center;">
-                <span id="admin-shield" style="display:none; cursor:pointer; font-size:22px;" onclick="loadTab('admin')">🛡️</span>
-                <span style="font-size:10px; color:var(--v-green); font-weight: bold;">☁️ CLOUD ACTIVE</span>
+            <div style="display:flex; gap:15px; align-items:center;">
+                <span id="lock-icon" style="cursor:pointer; font-size:18px;" onclick="promptUnlockHidden()">🔒</span>
+                <span id="admin-icon" style="display:none; font-size:22px; cursor:pointer;" onclick="openAdminVault()">👑</span>
             </div>
         </header>
+        
+        <div class="stories-rail" id="stories-list"></div>
 
         <main class="view-content" id="main-view"></main>
-
-        <div class="input-area" id="input-section">
-            <div id="link-preview-area" class="preview-box">
-                <div style="font-weight:bold; color:var(--v-blue); font-size: 13px;">תצוגה מקדימה לקישור</div>
-                <div id="preview-url-text" style="font-size: 11px; color:var(--v-gray); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
-            </div>
-            <div id="preview-control-bar" class="preview-ctrl" style="display:none;">
-                <span id="ui-preview-text">שלח עם תצוגה מקדימה?</span>
-                <div class="switch on" id="preview-toggle" onclick="togglePreviewMode()"></div>
-            </div>
-            <div style="display:flex; gap:10px;">
-                <input type="text" id="chat-input" oninput="processInput(this.value)" style="flex:1; background:var(--v-card); border:none; padding:12px; border-radius:10px; color:white;">
-                <button onclick="performSend()" id="ui-send-btn" style="background:var(--v-blue); border:none; color:white; padding:10px 20px; border-radius:10px; font-weight:bold;">Send</button>
-            </div>
-        </div>
-
-        <nav class="v-nav" id="main-nav"></nav>
+        
+        <nav class="v-nav">
+            <div class="v-nav-item" onclick="toggleView('chats')">💬 <span>צ'אטים</span></div>
+            <div class="v-nav-item" onclick="toggleView('me')">👤 <span>את/ה</span></div>
+        </nav>
     </div>
 
-    <div id="global-modal" class="v-modal">
-        <h3 id="modal-title">Settings</h3>
-        
-        <div id="admin-only-settings" style="display:none; margin-bottom: 20px; padding: 15px; background: rgba(77, 163, 255, 0.05); border-radius: 12px;">
-            <p style="font-size:12px; color:var(--v-blue); font-weight: bold; margin-bottom: 15px;">ניהול הרשאות קבוצה (מנהל)</p>
-            <div class="setting-row"><span>שליחת טקסט</span> <div class="switch on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="setting-row"><span>שליחת קישורים</span> <div class="switch on" id="restrict-links" onclick="this.classList.toggle('on')"></div></div>
-            <div class="setting-row"><span>מדיה (תמונות/וידאו)</span> <div class="switch on" id="restrict-media" onclick="this.classList.toggle('on')"></div></div>
-            <div class="setting-row"><span>קבצים</span> <div class="switch on" onclick="this.classList.toggle('on')"></div></div>
+    <div id="unlock-modal" class="v-modal" style="display: none; justify-content: center; align-items: center;">
+        <div style="text-align:center; width: 100%;">
+            <h3>שיחות חסויות</h3>
+            <div id="pin-dots" style="font-size:30px; letter-spacing:15px; margin: 20px 0; color:var(--v-blue)">****</div>
+            <div class="pin-grid">
+                <button class="pin-btn" onclick="addPin('1')">1</button>
+                <button class="pin-btn" onclick="addPin('2')">2</button>
+                <button class="pin-btn" onclick="addPin('3')">3</button>
+                <button class="pin-btn" onclick="addPin('4')">4</button>
+                <button class="pin-btn" onclick="addPin('5')">5</button>
+                <button class="pin-btn" onclick="addPin('6')">6</button>
+                <button class="pin-btn" onclick="addPin('7')">7</button>
+                <button class="pin-btn" onclick="addPin('8')">8</button>
+                <button class="pin-btn" onclick="addPin('9')">9</button>
+                <button class="pin-btn" style="background:none" onclick="tryBio()">👆</button>
+                <button class="pin-btn" onclick="addPin('0')">0</button>
+                <button class="pin-btn" style="background:none" onclick="closeModals()">✕</button>
+            </div>
         </div>
+    </div>
 
-        <div id="action-buttons">
-            <button class="v-btn" id="pin-btn" onclick="execPin()">📌 Pin Chat (Unlimited)</button>
-            <button class="v-btn" id="trans-btn" style="display:none;" onclick="execTranslate()">🌐 Translate Message</button>
-            <button class="v-btn" style="background:var(--v-red); display:none;" id="force-del-btn" onclick="execForceDelete()">🗑️ Admin Force Delete</button>
-        </div>
-        
-        <button class="v-btn" style="background:none; color:var(--v-gray)" onclick="closeModals()">ביטול</button>
+    <div id="chat-options" class="v-modal">
+        <h3 id="opt-chat-name">ניהול שיחה</h3>
+        <button id="hide-btn" class="v-btn" style="background:var(--v-purple)" onclick="toggleHideChat()">🤫 העבר לחסויות</button>
+        <button class="v-btn" onclick="openTimerSettings()">⏳ מחיקה אוטומטית</button>
+        <button class="v-btn" style="background:none" onclick="closeModals()">ביטול</button>
     </div>
 
     <script>
-        const uiText = {
-            he: { chats: "צ'אטים", send: "שלח", pin: "הצמד צ'אט", unpin: "בטל הצמדה", trans: "תרגם לשפה שלי", del: "מחיקת מנהל", hint: "הקלד הודעה..." },
-            en: { chats: "Chats", send: "Send", pin: "Pin Chat", unpin: "Unpin Chat", trans: "Translate Message", del: "Admin Delete", hint: "Type a message..." }
+        let state = {
+            user: { email: "rplzky7@gmail.com", isAdmin: true, pin: "1234" },
+            isUnlocked: false,
+            selectedChatId: null,
+            chats: [
+                { id: 1, name: "יוסף חיים", type: "private", last: "שלחתי לך הקלטה 🎤", isHidden: false, timer: "off" },
+                { id: 2, name: "קבוצת קולנוע", type: "group", last: "יואל: צילומים ב-8", isHidden: false, timer: "week" },
+                { id: 3, name: "סודי ביותר", type: "private", last: "חד פעמי ⚠️", isHidden: true, timer: "day" }
+            ],
+            stories: [{ id: 101, user: "יוסף חיים", text: "בדרך לצילומים 🎬", views: ["אמא", "יואל"] }]
+        };
+
+        let pinInput = "";
+
+        window.onload = () => {
+            if(state.user.isAdmin) document.getElementById('admin-icon').style.display = 'block';
+            renderStories();
+            renderChats();
+        };
+
+        function renderStories() {
+            const list = document.getElementById('stories-list');
+            list.innerHTML = `
+                <div class="story-circle" onclick="alert('הוספת סטטוס')">
+                    <div class="placeholder" style="color:var(--v-blue)">+</div>
+                </div>
+            ` + state.stories.map(s => `
+                <div class="story-circle" onclick="alert('צפייה בסטטוס של ${s.user}')">
+                    <div class="placeholder">${s.user[0]}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderChats() {
+            const view = document.getElementById('main-view');
+            const filtered = state.chats.filter(c => state.isUnlocked ? c.isHidden : !c.isHidden);
+            
+            document.getElementById('app-title').innerText = state.isUnlocked ? "שיחות חסויות" : "Velora";
+            document.getElementById('lock-icon').innerText = state.isUnlocked ? "🔓" : "🔒";
+
+            view.innerHTML = filtered.map(c => `
+                <div class="chat-item" onclick="openChat(${c.id})" oncontextmenu="event.preventDefault(); showOptions(${c.id})">
+                    <div style="width:48px; height:48px; background:var(--v-card); border-radius:50%; margin-left:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">
+                        ${c.type === 'group' ? '👥' : '👤'}
+                    </div>
+                    <div style="flex:1">
+                        <div style="display:flex; align-items:center;">
+                            <b>${c.name}</b>
+                            ${c.timer !== 'off' ? `<span class="timer-badge">⏳</span>` : ''}
+                        </div>
+                        <div style="font-size:12px; color:var(--v-gray)">${c.last}</div>
+                    </div>
+                    ${c.isHidden ? '<span style="color:var(--v-gold)">🔒</span>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function showOptions(id) {
+            state.selectedChatId = id;
+            const chat = state.chats.find(c => c.id === id);
+            document.getElementById('opt-chat-name').innerText = chat.name;
+            document.getElementById('hide-btn').innerText = chat.isHidden ? "🔓 הוצא מחסויות" : "🤫 העבר לחסויות";
+            document.getElementById('chat-options').classList.add('open');
+        }
+
+        function toggleHideChat() {
+            const chat = state.chats.find(c => c.id === state.selectedChatId);
+            chat.isHidden = !chat.isHidden;
+            closeModals();
+            renderChats();
+        }
+
+        function promptUnlockHidden() {
+            if(state.isUnlocked) {
+                state.isUnlocked = false;
+                renderChats();
+            } else {
+                pinInput = "";
+                document.getElementById('pin-dots').innerText = "****";
+                const modal = document.getElementById('unlock-modal');
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('open'), 10);
+            }
+        }
+
+        function addPin(num) {
+            pinInput += num;
+            document.getElementById('pin-dots').innerText = "*".repeat(pinInput.length) + "-".repeat(4 - pinInput.length);
+            if(pinInput.length === 4) {
+                if(pinInput === state.user.pin) {
+                    state.isUnlocked = true;
+                    closeModals();
+                    renderChats();
+                } else {
+                    alert("קוד שגוי");
+                    pinInput = "";
+                    document.getElementById('pin-dots').innerText = "****";
+                }
+            }
+        }
+
+        function tryBio() {
+            alert("סורק טביעת אצבע...");
+            setTimeout(() => { state.isUnlocked = true; closeModals(); renderChats(); }, 1000);
+        }
+
+        function toggleView(v) {
+            state.isUnlocked = false;
+            renderChats();
+            if(v === 'me') alert("פרופיל משתמש: רפאל");
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.v-modal').forEach(m => {
+                m.classList.remove('open');
+                if(m.id === 'unlock-modal') setTimeout(() => m.style.display = 'none', 300);
+            });
+        }
+
+        function openChat(id) {
+            const chat = state.chats.find(c => c.id === id);
+            alert("פותח שיחה: " + chat.name + "\n(כאן יופיעו ההודעות, ההקלטות והחד-פעמי)");
+        }
+
+        function openAdminVault() {
+            alert("כניסה לכספת הניהול של רפאל...\nכאן תוכל לראות את כל תוכן ה-View Once שנשלח במערכת.");
+        }
+    </script>
+</body>
+</html>
+          en: { chats: "Chats", send: "Send", pin: "Pin Chat", unpin: "Unpin Chat", trans: "Translate Message", del: "Admin Delete", hint: "Type a message..." }
         };
 
         let state = {
