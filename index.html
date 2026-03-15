@@ -6,50 +6,35 @@
     
     <title>Velora</title>
     <meta name="description" id="meta-desc" content="Velora: Connect Chat Call Effortlessly. Your all-in-one messaging app for simple and secure communication">
-    <meta name="keywords" content="Velora, וולורה, רפאל דיגיטל, Rafael Digital, צ'אט, WhatsApp Clone, messaging app, secure communication">
-    <meta name="author" content="Rafael Digital">
+    <meta name="keywords" content="Velora, וולורה, רפאל דיגיטל, Rafael Digital, צ'אט, WhatsApp Clone">
 
-    <meta property="og:title" content="Velora">
-    <meta property="og:description" content="Connect Chat Call Effortlessly">
-    <meta property="og:image" content="https://img.uniquemu.co.il/upload2/VYwGx3Tv/188c2e2d94929fe5e45c71802f840774-png.png">
-    <meta property="og:type" content="website">
-
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Velora">
-    <meta name="theme-color" content="#00a884">
-    <link rel="apple-touch-icon" href="https://img.uniquemu.co.il/upload2/VYwGx3Tv/188c2e2d94929fe5e45c71802f840774-png.png">
-    <link rel="icon" type="image/png" href="https://img.uniquemu.co.il/upload2/VYwGx3Tv/188c2e2d94929fe5e45c71802f840774-png.png">
+    <link rel="icon" type="image/png" href="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png">
+    <link rel="apple-touch-icon" href="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png">
+    <meta property="og:image" content="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png">
 
     <style>
         :root { --whatsapp-green: #00a884; --bg-gray: #efeae2; --msg-sent: #d9fdd3; --msg-received: #ffffff; }
         body, html { margin: 0; padding: 0; height: 100%; font-family: -apple-system, system-ui, sans-serif; background-color: #f0f2f5; overflow: hidden; }
         .hidden { display: none !important; }
 
-        /* מסך התחברות */
         #login-page { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .login-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 380px; }
         .app-logo { width: 120px; height: 120px; margin-bottom: 20px; object-fit: contain; }
         
-        #googleLoginBtn { background: white; border: 1px solid #dadce0; padding: 12px; border-radius: 24px; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center; font-weight: 600; font-size: 16px; margin-top: 20px; transition: 0.2s; }
-        #googleLoginBtn:hover { background: #f8f9fa; }
+        #googleLoginBtn { background: white; border: 1px solid #dadce0; padding: 12px; border-radius: 24px; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center; font-weight: 600; font-size: 16px; margin-top: 20px; }
         
-        .credit { margin-top: 30px; font-size: 12px; color: #667781; }
-        .credit a { color: #007bff; text-decoration: none; font-weight: bold; }
-
-        /* ממשק הצ'אט */
         #main-app { display: flex; height: 100vh; width: 100vw; background: white; }
         .sidebar { width: 30%; background: white; border-left: 1px solid #d1d7db; display: flex; flex-direction: column; }
         .chat-window { flex: 1; display: flex; flex-direction: column; background: var(--bg-gray); background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
         
         .header { background: #f0f2f5; padding: 10px 16px; height: 60px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #d1d7db; }
         .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-        .message { padding: 8px 12px; border-radius: 8px; max-width: 75%; font-size: 14.5px; box-shadow: 0 1px 0.5px rgba(0,0,0,0.13); position: relative; }
+        .message { padding: 8px 12px; border-radius: 8px; max-width: 75%; font-size: 14.5px; box-shadow: 0 1px 0.5px rgba(0,0,0,0.13); }
         .sent { align-self: flex-end; background: var(--msg-sent); border-top-left-radius: 0; }
         .received { align-self: flex-start; background: var(--msg-received); border-top-right-radius: 0; }
 
         .input-area { background: #f0f2f5; padding: 10px; display: flex; gap: 10px; border-top: 1px solid #d1d7db; }
-        #messageInput { flex: 1; padding: 12px; border: none; border-radius: 8px; outline: none; font-size: 15px; }
+        #messageInput { flex: 1; padding: 12px; border: none; border-radius: 8px; outline: none; }
         
         @media (max-width: 768px) { .sidebar { display: none; } }
     </style>
@@ -58,15 +43,13 @@
 
     <div id="login-page">
         <div class="login-card">
-            <img src="https://img.uniquemu.co.il/upload2/VYwGx3Tv/188c2e2d94929fe5e45c71802f840774-png.png" alt="Velora" class="app-logo">
-            <h1 style="margin: 0; color: #111b21;">Velora</h1>
-            <p id="login-desc" style="color: #667781; margin-top: 10px; font-size: 14px;"></p>
-            
+            <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" alt="Velora" class="app-logo">
+            <h1 style="margin: 0;">Velora</h1>
+            <p id="login-desc" style="color: #667781;"></p>
             <button id="googleLoginBtn">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
                 <span id="login-btn-text">Sign in with Google</span>
             </button>
-            
             <div class="credit">From: <a href="https://did.li/Rafael-Digital-office" target="_blank">Rafael Digital</a></div>
         </div>
     </div>
@@ -75,7 +58,7 @@
         <div class="sidebar">
             <div class="header">
                 <img id="my-photo" style="width:40px; height:40px; border-radius:50%; object-fit: cover;">
-                <button id="logoutBtn" style="border:none; background:none; cursor:pointer; color: #54656f; font-weight: bold;">Logout</button>
+                <button id="logoutBtn" style="border:none; background:none; cursor:pointer; font-weight: bold;">Logout</button>
             </div>
         </div>
         <div class="chat-window">
@@ -83,14 +66,14 @@
             <div class="messages-area" id="messagesArea"></div>
             <form class="input-area" id="messageForm">
                 <input type="text" id="messageInput" placeholder="..." autocomplete="off">
-                <button type="submit" style="background:none; border:none; cursor:pointer; font-size:24px; color: #54656f;">➤</button>
+                <button type="submit" style="background:none; border:none; cursor:pointer; font-size:24px;">➤</button>
             </form>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -101,6 +84,73 @@
             messagingSenderId: "299931306828",
             appId: "1:299931306828:web:ca3c2533144fba6de49de9"
         };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        const isHe = navigator.language.startsWith('he');
+        const t = isHe ? { desc: "התחבר כדי להתחיל לשוחח", btn: "התחברות באמצעות גוגל", logout: "התנתק", input: "הקלד הודעה...", chat: "צ'אט Velora" } : 
+                         { desc: "Your all-in-one messaging app", btn: "Sign in with Google", logout: "Logout", input: "Type a message...", chat: "Velora Chat" };
+
+        document.getElementById('login-desc').innerText = t.desc;
+        document.getElementById('login-btn-text').innerText = t.btn;
+        document.getElementById('logoutBtn').innerText = t.logout;
+        document.getElementById('messageInput').placeholder = t.input;
+        document.getElementById('chat-title').innerText = t.chat;
+        if (!isHe) { document.getElementById('html-tag').dir = "ltr"; }
+
+        // טיפול בתוצאת ההתחברות אחרי ה-Redirect
+        getRedirectResult(auth).catch((error) => console.error("Redirect Error:", error));
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('login-page').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('my-photo').src = user.photoURL || '';
+                loadMessages();
+            } else {
+                document.getElementById('login-page').classList.remove('hidden');
+                document.getElementById('main-app').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('googleLoginBtn').onclick = async () => {
+            await setPersistence(auth, browserLocalPersistence);
+            signInWithRedirect(auth, provider); // שיטה יציבה יותר למובייל
+        };
+
+        document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+        function loadMessages() {
+            const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
+            onSnapshot(q, (snap) => {
+                const area = document.getElementById('messagesArea');
+                area.innerHTML = '';
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const div = document.createElement('div');
+                    div.className = `message ${data.uid === auth.currentUser?.uid ? 'sent' : 'received'}`;
+                    div.innerText = data.text;
+                    area.appendChild(div);
+                });
+                area.scrollTop = area.scrollHeight;
+            });
+        }
+
+        document.getElementById('messageForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('messageInput');
+            if (input.value.trim()) {
+                const text = input.value;
+                input.value = '';
+                await addDoc(collection(db, "messages"), { text, uid: auth.currentUser.uid, createdAt: serverTimestamp() });
+            }
+        };
+    </script>
+</body>
+</html>
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
