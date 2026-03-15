@@ -897,6 +897,141 @@ html, body {
   background: transparent; border: none; color: var(--text-muted);
   cursor: pointer; font-size: 18px; flex-shrink:0; padding: 4px;
 }
+
+/* ===== LINK PREVIEW CARD ===== */
+.link-preview-card {
+  border-radius: 12px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 6px; cursor: pointer;
+  background: rgba(0,0,0,0.25);
+  transition: opacity var(--transition);
+  max-width: 100%;
+}
+.link-preview-img {
+  width: 100%; height: 120px; object-fit: cover;
+  display: block; background: var(--bg-overlay);
+}
+.link-preview-img-placeholder {
+  width: 100%; height: 80px; background: var(--bg-overlay);
+  display: flex; align-items: center; justify-content: center; font-size: 28px;
+}
+.link-preview-body { padding: 10px 12px; }
+.link-preview-domain { font-size: 11px; color: var(--accent); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.link-preview-title { font-size: 13.5px; font-weight: 600; line-height: 1.35;
+  margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden; }
+.link-preview-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Link preview toggle in input area */
+#linkPreviewToggleBar {
+  display: none; padding: 6px 14px 2px;
+  background: var(--bg-surface); border-top: 1px solid var(--border);
+  align-items: center; gap: 10px; flex-shrink: 0;
+}
+#linkPreviewToggleBar.show { display: flex; }
+.link-preview-mini {
+  flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0;
+}
+.link-preview-mini-favicon {
+  width: 16px; height: 16px; border-radius: 3px; flex-shrink: 0;
+  background: var(--bg-elevated);
+}
+.link-preview-mini-url {
+  font-size: 12px; color: var(--accent); overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.link-toggle-pill {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 999px; padding: 4px 10px; cursor: pointer;
+  font-size: 12px; color: var(--text-secondary);
+  transition: all var(--transition);
+}
+.link-toggle-pill.preview-on { border-color: var(--border-accent); color: var(--accent); }
+.link-toggle-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text-muted); transition: background var(--transition);
+}
+.link-toggle-pill.preview-on .link-toggle-dot { background: var(--accent); }
+.link-preview-close {
+  background: none; border: none; color: var(--text-muted);
+  cursor: pointer; font-size: 15px; padding: 2px 4px; flex-shrink: 0;
+}
+
+/* ===== FORWARDED LABEL ===== */
+.forwarded-label {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11.5px; color: var(--text-muted);
+  margin-bottom: 4px; font-style: italic;
+}
+.forwarded-label svg { width: 12px; height: 12px; opacity: 0.6; flex-shrink: 0; }
+.forwarded-from-link {
+  color: var(--accent); cursor: pointer; text-decoration: none;
+  transition: color var(--transition); font-style: normal; font-weight: 500;
+}
+.forwarded-from-link:hover { color: var(--accent-2); text-decoration: underline; }
+
+/* Forward button on message hover */
+.msg-group { position: relative; }
+.msg-actions-bar {
+  position: absolute; top: 0;
+  display: flex; gap: 3px; align-items: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--transition);
+}
+.msg-group:hover .msg-actions-bar { opacity: 1; pointer-events: all; }
+.msg-group.me .msg-actions-bar { left: -80px; }
+.msg-group.them .msg-actions-bar { right: -80px; }
+.msg-action-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  color: var(--text-secondary); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; transition: all var(--transition);
+}
+.msg-action-btn:hover { background: var(--bg-overlay); color: var(--text-primary); border-color: var(--border-accent); }
+
+/* ===== SETUP SCREEN (Onboarding) ===== */
+#setupScreen {
+  position: fixed; inset: 0; z-index: 950;
+  background: var(--bg-base);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px; overflow: hidden;
+}
+#setupScreen.active { display: flex; }
+#setupScreen::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse 70% 50% at 50% 100%, rgba(108,99,255,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.setup-logo {
+  width: 72px; height: 72px; border-radius: 22px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  overflow: hidden; margin-bottom: 20px;
+  box-shadow: 0 12px 40px rgba(108,99,255,0.4);
+}
+.setup-logo img { width:100%; height:100%; object-fit:cover; }
+.setup-title { font-family: var(--font-display); font-size: 26px; font-weight: 800;
+  text-align: center; margin-bottom: 6px; }
+.setup-sub { font-size: 14px; color: var(--text-secondary); text-align: center;
+  margin-bottom: 32px; max-width: 300px; line-height: 1.6; }
+.setup-user-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 24px; width: 100%; max-width: 380px;
+}
+.setup-user-avatar {
+  width: 40px; height: 40px; border-radius: 50%; overflow: hidden;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 16px; color: #fff; flex-shrink: 0;
+}
+.setup-user-avatar img { width:100%; height:100%; object-fit:cover; }
+.setup-user-name { font-weight: 600; font-size: 15px; }
+.setup-user-email { font-size: 12px; color: var(--text-muted); }
 </style>
 </head>
 <body>
@@ -952,7 +1087,37 @@ html, body {
   <button class="pwa-dismiss-btn" onclick="dismissPWABanner()">✕</button>
 </div>
 
-<!-- ===== ACCOUNT TYPE MODAL ===== -->
+<!-- ===== SETUP / ONBOARDING SCREEN ===== -->
+<div id="setupScreen">
+  <div class="setup-logo">
+    <img src="https://i.ibb.co/RGmVcHyd/velora-logo.png" alt="Velora"
+         onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\'font-family:var(--font-display);font-weight:800;font-size:28px;color:#fff\'>V</span>'">
+  </div>
+  <div class="setup-title">Welcome to Velora 👋</div>
+  <div class="setup-sub">One last step — choose how you want to use Velora.</div>
+  <div class="setup-user-row" id="setupUserRow">
+    <div class="setup-user-avatar" id="setupUserAvatar">?</div>
+    <div>
+      <div class="setup-user-name" id="setupUserName">Loading…</div>
+      <div class="setup-user-email" id="setupUserEmail"></div>
+    </div>
+  </div>
+  <div class="account-type-cards" style="width:100%;max-width:380px;margin-bottom:24px">
+    <div class="account-card" id="setupCardRegular" onclick="selectSetupType('regular')">
+      <div class="account-card-icon">👤</div>
+      <div class="account-card-name">Regular</div>
+      <div class="account-card-desc">Personal · 1 native bot</div>
+    </div>
+    <div class="account-card" id="setupCardBusiness" onclick="selectSetupType('business')">
+      <div class="account-card-icon">💼</div>
+      <div class="account-card-name">Business</div>
+      <div class="account-card-desc">Pro badge · 3 bots · Catalog</div>
+    </div>
+  </div>
+  <button class="btn-primary" style="max-width:380px" onclick="confirmSetupType()">Start Using Velora →</button>
+</div>
+
+<!-- ===== ACCOUNT TYPE MODAL (settings change) ===== -->
 <div class="modal-overlay" id="accountTypeModal">
   <div class="modal-box">
     <div class="modal-title">Choose Account Type</div>
@@ -1155,13 +1320,26 @@ html, body {
 
   <div class="messages-area" id="messagesArea"></div>
 
+  <!-- Link Preview Toggle Bar (shown when URL is detected in input) -->
+  <div id="linkPreviewToggleBar">
+    <div class="link-preview-mini">
+      <img class="link-preview-mini-favicon" id="linkFavicon" src="" alt="">
+      <span class="link-preview-mini-url" id="linkDetectedUrl"></span>
+    </div>
+    <div class="link-toggle-pill preview-on" id="linkTogglePill" onclick="toggleLinkPreview()">
+      <div class="link-toggle-dot"></div>
+      <span id="linkToggleLabel">Preview On</span>
+    </div>
+    <button class="link-preview-close" onclick="dismissLinkBar()" title="Dismiss">✕</button>
+  </div>
+
   <div class="message-input-area">
     <button class="attach-btn" onclick="toggleAttachMenu()" title="Attach">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
     </button>
     <div class="msg-input-wrap">
       <textarea class="msg-input" id="msgInput" placeholder="Message…" rows="1"
-        oninput="autoResize(this)" onkeydown="handleMsgKeydown(event)"></textarea>
+        oninput="autoResize(this);detectLink(this.value)" onkeydown="handleMsgKeydown(event)"></textarea>
       <button class="attach-btn" onclick="toggleFormatBar()" title="Format text" style="font-size:14px;font-weight:700">Aa</button>
     </div>
     <button class="send-btn" id="sendBtn" onclick="sendMessage()">
@@ -1260,7 +1438,6 @@ let deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  // Show banner after 3s if not already installed
   setTimeout(() => {
     if (!window.matchMedia('(display-mode: standalone)').matches) {
       document.getElementById('pwaInstallBanner').classList.add('show');
@@ -1281,121 +1458,253 @@ window.dismissPWABanner = function() {
 
 // ───── FOOTER I18N ─────
 (function localizeFooter() {
-  const lang = (navigator.language || navigator.userLanguage || 'en').split('-')[0].toLowerCase();
-  const translations = {
-    he: { pre: 'נוצר באהבה על ידי: ', link: 'רפאל דיגיטל' },
-    ar: { pre: 'صُنع بحب بواسطة: ', link: 'رافاييل ديجيتال' },
-    es: { pre: 'Creado con amor por: ', link: 'Rafael Digital' },
-    fr: { pre: 'Créé avec amour par : ', link: 'Rafael Digital' },
-    de: { pre: 'Mit Liebe erstellt von: ', link: 'Rafael Digital' },
-    pt: { pre: 'Criado com amor por: ', link: 'Rafael Digital' },
-    ru: { pre: 'Создано с любовью: ', link: 'Rafael Digital' },
-    zh: { pre: '由以下人员用心创作：', link: 'Rafael Digital' },
-    ja: { pre: '愛を込めて制作：', link: 'Rafael Digital' },
-    it: { pre: 'Creato con amore da: ', link: 'Rafael Digital' },
+  const lang = (navigator.language || 'en').split('-')[0].toLowerCase();
+  const T = {
+    he:{pre:'נוצר באהבה על ידי: ',link:'רפאל דיגיטל'},
+    ar:{pre:'صُنع بحب بواسطة: ',link:'رافاييل ديجيتال'},
+    es:{pre:'Creado con amor por: ',link:'Rafael Digital'},
+    fr:{pre:'Créé avec amour par : ',link:'Rafael Digital'},
+    de:{pre:'Mit Liebe erstellt von: ',link:'Rafael Digital'},
+    pt:{pre:'Criado com amor por: ',link:'Rafael Digital'},
+    ru:{pre:'Создано с любовью: ',link:'Rafael Digital'},
+    zh:{pre:'由以下人员用心创作：',link:'Rafael Digital'},
+    ja:{pre:'愛を込めて制作：',link:'Rafael Digital'},
+    it:{pre:'Creato con amore da: ',link:'Rafael Digital'},
   };
-  const t = translations[lang] || { pre: 'Created with love by: ', link: 'Rafael Digital' };
+  const t = T[lang] || {pre:'Created with love by: ',link:'Rafael Digital'};
   const ft = document.getElementById('footerText');
   const fl = document.getElementById('footerLink');
   if (ft) ft.textContent = t.pre;
   if (fl) fl.textContent = t.link;
 })();
 
-// ───── LOADING SCREEN HELPERS ─────
-function showLoadingScreen(msg) {
-  const ls = document.getElementById('loadingScreen');
-  const lt = document.getElementById('loadingText');
-  if (lt) lt.textContent = msg || 'Loading…';
-  ls.classList.add('active');
-}
-function hideLoadingScreen() {
-  const ls = document.getElementById('loadingScreen');
-  ls.style.transition = 'opacity 0.4s ease';
-  ls.style.opacity = '0';
-  setTimeout(() => { ls.classList.remove('active'); ls.style.opacity = ''; }, 420);
+// ───── LOADING / SCREEN STATE MACHINE ─────
+// States: 'splash' | 'loading' | 'setup' | 'app'
+// Rule: once authenticated, NEVER go back to splash
+let appState = 'splash';
+
+function setState(state, msg) {
+  // Hide all screens first
+  const screens = {
+    splash: document.getElementById('splash'),
+    loading: document.getElementById('loadingScreen'),
+    setup: document.getElementById('setupScreen'),
+    app: document.getElementById('app'),
+  };
+
+  // Enforce the rule: once past splash, never return to it
+  if (state === 'splash' && appState !== 'splash') {
+    console.warn('[Velora] Blocked illegal redirect back to splash from state:', appState);
+    return;
+  }
+
+  // Apply transitions
+  Object.entries(screens).forEach(([name, el]) => {
+    if (!el) return;
+    if (name === state) {
+      el.style.display = 'flex';
+      el.style.opacity = '1';
+      if (name === 'app') { el.classList.add('visible'); }
+      if (name === 'loading' && msg) {
+        const lt = document.getElementById('loadingText');
+        if (lt) lt.textContent = msg;
+      }
+      if (name === 'setup') { el.classList.add('active'); }
+      if (name === 'loading') { el.classList.add('active'); }
+    } else {
+      if (name === 'splash') { el.style.opacity = '0'; setTimeout(() => { el.style.display = 'none'; }, 360); }
+      else if (name === 'loading') { el.classList.remove('active'); el.style.opacity = ''; }
+      else if (name === 'setup') { el.classList.remove('active'); }
+      else if (name === 'app') { /* keep visible */ }
+    }
+  });
+
+  appState = state;
 }
 
-// ───── AUTH ─────
+function showLoadingScreen(msg) { setState('loading', msg); }
+function hideLoadingScreen()    { setState(appState === 'loading' ? 'app' : appState); }
+
+// ───── AUTH — THE CORE FIX ─────
+// Key principles:
+// 1. onAuthStateChanged is called ONCE when Firebase resolves auth state on page load.
+// 2. If user is signed in → NEVER show splash. Always show loading then app/setup.
+// 3. Admin gets same flow as any user — no special loop.
+// 4. New user → setup screen. Existing user → app.
+
+let _authResolved = false; // guard against double-fire
+
 document.getElementById('btnGoogleLogin').addEventListener('click', async () => {
   const btn = document.getElementById('btnGoogleLogin');
   btn.disabled = true;
-  btn.style.opacity = '0.6';
-  btn.textContent = 'Signing in…';
+  btn.style.opacity = '0.7';
+  btn.innerHTML = '<span style="display:flex;align-items:center;gap:8px;justify-content:center">⏳ Signing in to Velora…</span>';
   try {
     const provider = new GoogleAuthProvider();
+    // "Velora" is the display name configured in Firebase Console OAuth consent screen
     provider.setCustomParameters({ prompt: 'select_account' });
     await signInWithPopup(auth, provider);
+    // onAuthStateChanged will fire and handle everything from here
   } catch(e) {
     btn.disabled = false;
     btn.style.opacity = '';
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px;flex-shrink:0"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Continue with Google`;
-    if (e.code !== 'auth/popup-closed-by-user') {
-      showToast('Sign-in failed: ' + (e.message || 'Unknown error'), 'error');
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" style="width:20px;height:20px;flex-shrink:0"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Continue with Google`;
+    const code = e.code || '';
+    if (code !== 'auth/popup-closed-by-user' && code !== 'auth/cancelled-popup-request') {
+      showToast('Sign-in failed: ' + (e.message || 'Please try again.'), 'error');
     }
   }
 });
 
 onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    currentUser = user;
-    // Show loading screen immediately — this fixes the black screen
-    showLoadingScreen('Setting up your account…');
-    hideSplashInstant();
+  if (_authResolved) return; // prevent double-fire on token refresh
+  _authResolved = true;
 
-    try {
-      const userRef = doc(firestore, 'users', user.uid);
-      const snap = await getDoc(userRef);
+  if (!user) {
+    // Genuinely signed out — only time we show splash
+    setState('splash');
+    return;
+  }
 
-      if (!snap.exists()) {
-        // New user — create profile
-        const veloraId = generateVeloraId();
-        const userData = {
-          uid: user.uid,
-          name: user.displayName || 'Velora User',
-          photo: user.photoURL || '',
-          email: user.email,
-          veloraId,
-          accountType: 'regular',
-          createdAt: Date.now(),
-          lastSeen: Date.now(),
-          readReceipts: true,
-          lastSeenPrivacy: 'everyone',
-          bio: '👋 Hey there! I\'m using Velora.',
-          isAdmin: user.email === ADMIN_EMAIL
-        };
-        await setDoc(userRef, userData);
-        await set(ref(db, `users/${user.uid}`), userData);
-        currentUserData = userData;
-        hideLoadingScreen();
-        openModal('accountTypeModal');
-      } else {
-        currentUserData = snap.data();
-        // Update presence
-        await Promise.all([
-          updateDoc(userRef, { lastSeen: Date.now(), photo: user.photoURL || '' }),
-          update(ref(db, `users/${user.uid}`), { lastSeen: Date.now(), photo: user.photoURL || '' })
-        ]);
-        hideLoadingScreen();
-        showApp();
+  // ── AUTHENTICATED ── transition away from splash immediately
+  currentUser = user;
+  setState('loading', 'Verifying your account…');
+
+  try {
+    const userRef = doc(firestore, 'users', user.uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) {
+      // ── BRAND NEW USER (including first-time admin) ──
+      // Scaffold the document first so we never get stuck
+      const veloraId = generateVeloraId();
+      const isAdmin = user.email === ADMIN_EMAIL;
+      const userData = {
+        uid: user.uid,
+        name: user.displayName || 'Velora User',
+        photo: user.photoURL || '',
+        email: user.email,
+        veloraId,
+        accountType: isAdmin ? 'regular' : 'regular', // default; user picks on setup screen
+        createdAt: Date.now(),
+        lastSeen: Date.now(),
+        readReceipts: true,
+        lastSeenPrivacy: 'everyone',
+        bio: '👋 Hey there! I\'m using Velora.',
+        isAdmin,
+        setupComplete: false,  // flag to re-show setup if needed
+      };
+      // Write to both services in parallel for resilience
+      await Promise.allSettled([
+        setDoc(userRef, userData),
+        set(ref(db, `users/${user.uid}`), userData),
+      ]);
+      currentUserData = userData;
+
+      // Show setup screen (NOT the modal, NOT the splash)
+      populateSetupScreen(user);
+      setState('setup');
+
+    } else {
+      // ── RETURNING USER ──
+      currentUserData = snap.data();
+
+      // Patch any missing fields (backwards compat)
+      if (!currentUserData.veloraId) currentUserData.veloraId = generateVeloraId();
+      if (currentUserData.isAdmin === undefined) currentUserData.isAdmin = (user.email === ADMIN_EMAIL);
+
+      // If setup was never completed, go back to setup screen
+      if (currentUserData.setupComplete === false) {
+        populateSetupScreen(user);
+        setState('setup');
+        return;
       }
-    } catch (err) {
-      console.error('Auth setup error:', err);
-      hideLoadingScreen();
-      showToast('Error loading profile. Please refresh.', 'error');
-      // Still try to show app with whatever data we have
-      if (currentUserData) showApp();
+
+      // Update presence silently (don't await — don't let this block UI)
+      Promise.allSettled([
+        updateDoc(userRef, { lastSeen: Date.now(), photo: user.photoURL || '' }),
+        update(ref(db, `users/${user.uid}`), { lastSeen: Date.now(), photo: user.photoURL || '' }),
+      ]);
+
+      setState('app');
+      showApp();
     }
-  } else {
-    currentUser = null;
-    currentUserData = null;
-    // Make sure splash is visible, app is hidden
-    const splash = document.getElementById('splash');
-    const app = document.getElementById('app');
-    splash.style.display = '';
-    splash.style.opacity = '1';
-    app.classList.remove('visible');
+  } catch (err) {
+    console.error('[Velora Auth] Firestore error:', err);
+    // NEVER black-screen. If Firestore fails, use whatever we have and show app.
+    if (currentUserData) {
+      setState('app');
+      showApp();
+      showToast('Loaded in offline mode. Some features may be limited.', 'info');
+    } else {
+      // Absolute last resort: build minimal userData from Google profile
+      currentUserData = {
+        uid: user.uid,
+        name: user.displayName || 'Velora User',
+        photo: user.photoURL || '',
+        email: user.email,
+        veloraId: generateVeloraId(),
+        accountType: 'regular',
+        isAdmin: user.email === ADMIN_EMAIL,
+        readReceipts: true,
+        bio: '👋 Hey there!',
+        setupComplete: false,
+      };
+      populateSetupScreen(user);
+      setState('setup');
+    }
   }
 });
+
+// ── Sign-out: reset the auth guard so re-login works ──
+function doFullSignOut() {
+  _authResolved = false;
+  currentUser = null;
+  currentUserData = null;
+}
+
+// ── Setup screen helpers ──
+let setupSelectedType = 'regular';
+
+function populateSetupScreen(user) {
+  const av = document.getElementById('setupUserAvatar');
+  const nm = document.getElementById('setupUserName');
+  const em = document.getElementById('setupUserEmail');
+  if (user.photoURL) {
+    av.innerHTML = `<img src="${user.photoURL}" alt="" onerror="this.parentElement.textContent='${(user.displayName||'?')[0]}'">`;
+  } else {
+    av.textContent = (user.displayName || '?')[0].toUpperCase();
+  }
+  if (nm) nm.textContent = user.displayName || 'Velora User';
+  if (em) em.textContent = user.email || '';
+  selectSetupType('regular');
+}
+
+window.selectSetupType = function(type) {
+  setupSelectedType = type;
+  document.getElementById('setupCardRegular').classList.toggle('selected', type === 'regular');
+  document.getElementById('setupCardBusiness').classList.toggle('selected', type === 'business');
+};
+
+window.confirmSetupType = async function() {
+  const btn = document.querySelector('#setupScreen .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  try {
+    const userRef = doc(firestore, 'users', currentUser.uid);
+    await Promise.allSettled([
+      updateDoc(userRef, { accountType: setupSelectedType, setupComplete: true }),
+      update(ref(db, `users/${currentUser.uid}`), { accountType: setupSelectedType, setupComplete: true }),
+    ]);
+    currentUserData.accountType = setupSelectedType;
+    currentUserData.setupComplete = true;
+  } catch(e) {
+    console.error('Setup save error:', e);
+    // still proceed — don't block
+  }
+  document.getElementById('setupScreen').classList.remove('active');
+  setState('app');
+  showApp();
+};
 
 function hideSplashInstant() {
   const splash = document.getElementById('splash');
@@ -1403,22 +1712,19 @@ function hideSplashInstant() {
   splash.style.opacity = '0';
   setTimeout(() => { splash.style.display = 'none'; }, 360);
 }
-
-function hideSplash(login) {
-  hideSplashInstant();
-}
+function hideSplash() { hideSplashInstant(); }
 
 function showApp() {
-  // Ensure splash is gone
-  const splash = document.getElementById('splash');
-  splash.style.display = 'none';
+  // Hide all other screens
+  document.getElementById('splash').style.display = 'none';
+  document.getElementById('loadingScreen').classList.remove('active');
+  const ss = document.getElementById('setupScreen');
+  if (ss) ss.classList.remove('active');
 
-  // Show app container — CRITICAL FIX: force display:flex then add visible class
   const app = document.getElementById('app');
   app.style.display = 'flex';
   app.classList.add('visible');
 
-  // Render all pages
   renderProfilePage();
   renderChatList();
   renderUpdatesPage();
@@ -1426,20 +1732,17 @@ function showApp() {
   buildDialer();
   buildSettingsPage();
 
-  // Update header logo with user photo
   const hl = document.getElementById('headerLogo');
   if (currentUserData?.photo) {
-    hl.innerHTML = `<img src="${currentUserData.photo}" alt="" onerror="this.parentElement.innerHTML='${getInitials(currentUserData?.name||'V')}'">`;
+    hl.innerHTML = `<img src="${currentUserData.photo}" alt="" onerror="this.parentElement.textContent='${getInitials(currentUserData?.name||'V')}'">`;
   } else {
     hl.textContent = getInitials(currentUserData?.name || 'V');
   }
 
-  // Admin welcome
   if (currentUserData?.isAdmin) {
-    setTimeout(() => showToast('👑 Welcome back, Admin!', 'info'), 600);
+    setTimeout(() => showToast('👑 Admin Panel — Welcome back!', 'info'), 700);
   }
 
-  // Show category bar on chats tab
   document.getElementById('categoryBar').style.display = 'flex';
 }
 
@@ -1578,14 +1881,102 @@ function getDemoMessages(name) {
   return base;
 }
 
+// ───── LINK PREVIEW DETECTION ─────
+let linkPreviewEnabled = true;
+let detectedLink = '';
+const URL_RE = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gi;
+
+window.detectLink = function(text) {
+  const bar = document.getElementById('linkPreviewToggleBar');
+  const matches = text.match(URL_RE);
+  if (matches && matches.length > 0) {
+    detectedLink = matches[0];
+    document.getElementById('linkDetectedUrl').textContent = detectedLink;
+    // Favicon from Google
+    try {
+      const domain = new URL(detectedLink).hostname;
+      document.getElementById('linkFavicon').src = `https://www.google.com/s2/favicons?domain=${domain}&sz=16`;
+    } catch(e) {}
+    bar.classList.add('show');
+  } else {
+    detectedLink = '';
+    bar.classList.remove('show');
+  }
+};
+
+window.toggleLinkPreview = function() {
+  linkPreviewEnabled = !linkPreviewEnabled;
+  const pill = document.getElementById('linkTogglePill');
+  const label = document.getElementById('linkToggleLabel');
+  pill.classList.toggle('preview-on', linkPreviewEnabled);
+  label.textContent = linkPreviewEnabled ? 'Preview On' : 'Plain Text';
+};
+
+window.dismissLinkBar = function() {
+  document.getElementById('linkPreviewToggleBar').classList.remove('show');
+  detectedLink = '';
+};
+
+function buildLinkPreviewCard(url) {
+  try {
+    const domain = new URL(url).hostname.replace('www.','');
+    return `<div class="link-preview-card" onclick="window.open('${url}','_blank')">
+      <div class="link-preview-img-placeholder">🔗</div>
+      <div class="link-preview-body">
+        <div class="link-preview-domain">${domain}</div>
+        <div class="link-preview-title">${url.replace(/https?:\/\/(www\.)?/,'').slice(0,60)}</div>
+        <div class="link-preview-desc">Click to open this link in your browser</div>
+      </div>
+    </div>`;
+  } catch(e) { return ''; }
+}
+
+// ───── FORWARDING ─────
+let forwardingMsg = null;
+
+window.forwardMessage = function(text, fromChannel) {
+  forwardingMsg = { text, fromChannel: fromChannel || null };
+  showToast(fromChannel ? `Forwarding from ${fromChannel}…` : 'Select a chat to forward to');
+  closeChat();
+  openModal('newChatModal');
+};
+
+function getForwardLabel(fromChannel) {
+  const lang = (navigator.language || 'en').split('-')[0];
+  const labels = { he:'הועבר', ar:'تمت إعادة التوجيه', es:'Reenviado', fr:'Transféré',
+    de:'Weitergeleitet', pt:'Encaminhado', ru:'Переслано', zh:'转发', ja:'転送', it:'Inoltrato' };
+  return labels[lang] || 'Forwarded';
+}
+
+function renderForwardedLabel(fromChannel) {
+  const label = getForwardLabel();
+  const fwdSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>`;
+  if (fromChannel) {
+    return `<div class="forwarded-label">${fwdSVG} ${label} from <a class="forwarded-from-link" onclick="navigateToChannel('${fromChannel}')">${fromChannel}</a></div>`;
+  }
+  return `<div class="forwarded-label">${fwdSVG} ${label}</div>`;
+}
+
+window.navigateToChannel = function(name) {
+  closeChat();
+  switchTab('updates');
+  showToast(`Opening channel: ${name}`);
+};
+
 function renderMessage(m) {
   if (m.type === 'date') {
     return `<div class="date-divider"><span>${m.label}</span></div>`;
   }
   const isMe = m.from === 'me';
   const groupClass = isMe ? 'me' : 'them';
-  let bubbleContent;
-  
+  let bubbleContent = '';
+  let forwardedHtml = '';
+
+  // Forwarded label
+  if (m.forwarded) {
+    forwardedHtml = renderForwardedLabel(m.forwardedFrom || null);
+  }
+
   if (m.type === 'viewonce') {
     bubbleContent = `<div class="view-once-bubble" onclick="viewOnce(this)">
       <div class="view-once-icon">🔒</div>
@@ -1598,16 +1989,48 @@ function renderMessage(m) {
       <span class="audio-dur">0:23</span>
     </div>`;
   } else {
-    const txt = (m.text||'').replace(/\*(.*?)\*/g,'<strong>$1</strong>').replace(/_(.*?)_/g,'<em>$1</em>');
-    bubbleContent = `<div class="msg-bubble">${txt}</div>`;
+    // Process text: bold, italic, links
+    let txt = (m.text||'')
+      .replace(/\*(.*?)\*/g,'<strong>$1</strong>')
+      .replace(/_(.*?)_/g,'<em>$1</em>');
+
+    // Render link preview if enabled
+    let linkCard = '';
+    const urlMatches = (m.text||'').match(URL_RE);
+    if (urlMatches && m.showPreview !== false) {
+      linkCard = buildLinkPreviewCard(urlMatches[0]);
+      // Make the URL in text a clickable link
+      txt = txt.replace(URL_RE, u => `<a href="${u}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline" onclick="event.stopPropagation()">${u}</a>`);
+    }
+    bubbleContent = `${linkCard}<div class="msg-bubble">${forwardedHtml}${txt}</div>`;
+    // return early to avoid double-wrapping
+    const ticks = isMe ? `<span class="read-tick">${m.read===false?'✓':'✓✓'}</span>` : '';
+    const actionsBar = `<div class="msg-actions-bar">
+      <button class="msg-action-btn" onclick="forwardMessage('${(m.text||'').replace(/'/g,"\\'")}', null)" title="Forward">↗</button>
+      <button class="msg-action-btn" onclick="replyToMsg('${(m.text||'').replace(/'/g,"\\'")}')">↩</button>
+    </div>`;
+    return `<div class="msg-group ${groupClass}">
+      ${actionsBar}${linkCard}<div class="msg-bubble">${forwardedHtml}${txt}</div>
+      <div class="msg-meta">${formatTime(m.ts)} ${ticks}</div>
+    </div>`;
   }
-  
+
   const ticks = isMe ? `<span class="read-tick">${m.read===false?'✓':'✓✓'}</span>` : '';
+  const actionsBar = `<div class="msg-actions-bar">
+    <button class="msg-action-btn" onclick="forwardMessage('${(m.text||'').replace(/'/g,"\\'")}', null)" title="Forward">↗</button>
+    <button class="msg-action-btn" onclick="replyToMsg('${(m.text||'').replace(/'/g,"\\'")}')">↩</button>
+  </div>`;
   return `<div class="msg-group ${groupClass}">
-    ${bubbleContent}
+    ${actionsBar}${bubbleContent}
     <div class="msg-meta">${formatTime(m.ts)} ${ticks}</div>
   </div>`;
 }
+
+window.replyToMsg = function(text) {
+  const input = document.getElementById('msgInput');
+  input.focus();
+  showToast('Reply mode — type your response');
+};
 
 // ───── OPEN REAL CHAT ─────
 window.openChat = function(chatId, name) {
@@ -1658,25 +2081,43 @@ window.sendMessage = async function() {
   if (!text) return;
   input.value = '';
   input.style.height = '';
-  
+
+  // Capture link state before dismissing
+  const hasLink = !!detectedLink;
+  const showPreview = hasLink && linkPreviewEnabled;
+  const linkUrl = detectedLink;
+  dismissLinkBar();
+
+  // Build message object
+  const msgData = {
+    from: 'me',
+    text,
+    ts: Date.now(),
+    read: false,
+    showPreview,
+    forwarded: !!forwardingMsg,
+    forwardedFrom: forwardingMsg?.fromChannel || null,
+  };
+  const pendingForward = forwardingMsg;
+  forwardingMsg = null;
+
   if (activeChatId?.startsWith('demo_')) {
-    // Append demo message
     const area = document.getElementById('messagesArea');
     const el = document.createElement('div');
-    el.innerHTML = renderMessage({ from:'me', text, ts: Date.now(), read: false });
+    el.innerHTML = renderMessage(msgData);
     area.appendChild(el.firstElementChild);
     area.scrollTop = area.scrollHeight;
     // Simulate reply
     setTimeout(() => {
-      const replies = ['Got it! 👍','Interesting 🤔','Sounds good!','😂 lol','Tell me more!','On it!'];
+      const replies = ['Got it! 👍','Interesting 🤔','Sounds good!','😂 lol','Tell me more!','On it!','🔥 Nice!'];
       const el2 = document.createElement('div');
       el2.innerHTML = renderMessage({ from:'them', text: replies[Math.floor(Math.random()*replies.length)], ts: Date.now() });
       area.appendChild(el2.firstElementChild);
       area.scrollTop = area.scrollHeight;
-    }, 1000 + Math.random()*1500);
+    }, 900 + Math.random()*1400);
     return;
   }
-  
+
   if (!activeChatId || !currentUser) return;
   const msgRef = push(ref(db, `messages/${activeChatId}`));
   await set(msgRef, {
@@ -1685,9 +2126,12 @@ window.sendMessage = async function() {
     text,
     timestamp: serverTimestamp(),
     type: 'text',
-    read: false
+    read: false,
+    showPreview,
+    linkUrl: showPreview ? linkUrl : null,
+    forwarded: !!pendingForward,
+    forwardedFrom: pendingForward?.fromChannel || null,
   });
-  // Update chat last message
   await update(ref(db, `chats/${activeChatId}`), {
     lastMessage: text,
     lastMessageTime: serverTimestamp(),
@@ -1976,17 +2420,20 @@ window.switchAccountType = function() { openModal('accountTypeModal'); };
 window.syncContacts = function() { showToast('Syncing Google Contacts… Registered users shown first.', 'info'); };
 window.clearCache = function() { showToast('Cache cleared successfully!', 'success'); };
 window.doSignOut = async function() {
+  doFullSignOut(); // reset _authResolved + clear user data
   await signOut(auth);
+  appState = 'splash';
   const app = document.getElementById('app');
   app.classList.remove('visible');
-  app.style.display = '';
+  app.style.display = 'none';
   const splash = document.getElementById('splash');
-  splash.style.display = '';
+  splash.style.display = 'flex';
   splash.style.opacity = '1';
   const btn = document.getElementById('btnGoogleLogin');
   if (btn) {
     btn.disabled = false;
     btn.style.opacity = '';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" style="width:20px;height:20px;flex-shrink:0"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Continue with Google`;
   }
 };
 
