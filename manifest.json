@@ -1,0 +1,22 @@
+{
+  "name": "Velora Chat",
+  "short_name": "Velora",
+  "description": "Velora: Connect Chat Call Effortlessly",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#00a884",
+  "icons": [
+    {
+      "src": "https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+
