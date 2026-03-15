@@ -1,109 +1,185 @@
-            <div class="filters" id="filters-container"></div>
-      <!DOCTYPE html>
+                        <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" class="product-img">
+                        <div class="product-info">
+    <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Velora Premium</title>
+    <title>Velora - Rafael Digital</title>
     
-    <link rel="manifest" href="data:application/manifest+json,{'name':'Velora','short_name':'Velora','start_url':'.','display':'standalone','background_color':'#0a0c10','theme_color':'#4da3ff','icons':[{'src':'https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png','sizes':'512x512','type':'image/png'}]}">
+    <link rel="manifest" href="data:application/manifest+json,{'name':'Velora','short_name':'Velora','start_url':'.','display':'standalone','background_color':'#0a0c10','theme_color':'#4da3ff'}">
 
     <style>
-        :root { --v-blue: #4da3ff; --wa-green: #25d366; --bg-dark: #0a0c10; --wa-light-green: #d9fdd3; }
-        * { box-sizing: border-box; font-family: -apple-system, system-ui, sans-serif; }
-        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg-dark); overflow: hidden; }
+        :root { --v-blue: #4da3ff; --wa-green: #25d366; --bg-dark: #0a0c10; --wa-bg: #f0f2f5; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, Segoe UI, sans-serif; }
+        body, html { height: 100%; background: var(--bg-dark); overflow: hidden; }
         .hidden { display: none !important; }
 
-        /* Login Screen */
+        /* מסך התחברות - תיקון לחיצה */
         #login-screen {
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             height: 100vh; background: radial-gradient(circle at center, #1a1f2b 0%, #0a0c10 100%);
+            position: relative; z-index: 1000;
         }
-        .logo-text { font-size: 80px; font-weight: 900; color: var(--v-blue); margin: 0; letter-spacing: -3px; }
-        .google-btn {
-            margin-top: 40px; background: white; border: none; padding: 15px 35px; border-radius: 50px;
-            font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 12px; cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
-        .google-btn img { width: 24px; }
+        .logo-text { font-size: 80px; font-weight: 900; color: var(--v-blue); letter-spacing: -3px; }
+        .credit { color: #a0a0a0; font-size: 14px; margin-top: 10px; z-index: 1001; }
+        .credit a { color: var(--v-blue); text-decoration: none; font-weight: bold; cursor: pointer; }
 
-        /* Main Interface */
+        .google-btn {
+            margin-top: 50px; background: white; color: black; border: none;
+            padding: 15px 35px; border-radius: 50px; font-size: 18px; font-weight: bold;
+            display: flex; align-items: center; gap: 12px; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            position: relative; z-index: 2000; pointer-events: auto !important;
+        }
+        .google-btn img { width: 24px; height: 24px; pointer-events: none; }
+
+        /* ממשק ראשי */
         #main-app { display: flex; flex-direction: column; height: 100vh; background: white; }
         .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #eee; }
-        .header h1 { color: var(--wa-green); font-size: 22px; margin: 0; }
+        .header h1 { color: var(--wa-green); font-size: 22px; }
 
-        /* Tabs */
+        /* קטלוג וצ'אטים */
         .content-area { flex: 1; overflow-y: auto; }
-        .tab-pane { display: none; }
+        .tab-pane { display: none; padding-bottom: 20px; }
         .tab-pane.active { display: block; }
 
-        /* Chat & Status Styles */
-        .status-tray { display: flex; gap: 15px; padding: 15px; overflow-x: auto; border-bottom: 8px solid #f0f2f5; }
-        .status-item { display: flex; flex-direction: column; align-items: center; min-width: 70px; }
-        .ring { width: 62px; height: 62px; border-radius: 50%; border: 2px solid var(--wa-green); padding: 2px; }
-        .ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-
         .chat-item { display: flex; padding: 12px 16px; align-items: center; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
-        .pfp { width: 55px; height: 55px; border-radius: 50%; margin-left: 15px; background: #eee; }
+        .pfp { width: 55px; height: 55px; border-radius: 50%; margin-left: 15px; }
         [dir="ltr"] .pfp { margin-left: 0; margin-right: 15px; }
 
-        /* Catalog Styles */
-        .catalog-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
-        .product-card { border: 1px solid #eee; border-radius: 8px; overflow: hidden; background: white; }
-        .product-img { width: 100%; height: 120px; background: #f9f9f9; object-fit: cover; }
-        .product-info { padding: 10px; }
-        .product-price { color: var(--wa-green); font-weight: bold; }
+        /* קטלוג עסקי */
+        .catalog-container { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .product-card { border: 1px solid #eee; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .product-img { width: 100%; height: 110px; background: #f9f9f9; object-fit: cover; }
+        .product-info { padding: 8px; font-size: 14px; }
+        .price { color: var(--wa-green); font-weight: bold; margin-top: 4px; }
 
-        /* Admin & Business Tools */
-        .admin-banner { background: #1a1f2b; color: white; padding: 10px 15px; font-size: 13px; display: flex; justify-content: space-between; }
-        .badge-biz { background: #e7f5e9; color: #15803d; font-size: 11px; padding: 2px 6px; border-radius: 4px; }
-
-        /* Nav Bottom */
+        /* תפריט תחתון (312208.jpg) */
         .nav-bar { height: 70px; background: #f6f6f6; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #ddd; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #54656f; font-size: 12px; cursor: pointer; flex: 1; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #54656f; flex: 1; cursor: pointer; font-size: 12px; }
         .nav-item.active { color: #111b21; font-weight: bold; }
-        .nav-icon { font-size: 20px; padding: 4px 20px; border-radius: 20px; margin-bottom: 4px; }
-        .nav-item.active .nav-icon { background: var(--wa-light-green); }
+        .nav-icon { font-size: 20px; padding: 4px 20px; border-radius: 20px; }
+        .nav-item.active .nav-icon { background: #d9fdd3; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <h1 class="logo-text">VELORA</h1>
+        <div class="credit">
+            נוצר באהבה על ידי <a href="https://did.li/Rafael-Digital-office" target="_blank">רפאל דיגיטל</a>
+        </div>
         <button class="google-btn" id="loginBtn">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
             <span>התחברות דרך Google</span>
         </button>
-        <p style="color:#888; margin-top:20px; font-size:12px;">נוצר באהבה על ידי רפאל דיגיטל</p>
     </div>
 
     <div id="main-app" class="hidden">
-        <div id="admin-banner" class="admin-banner hidden">
-            <span>🛡️ ניהול רפאל דיגיטל</span>
-            <button onclick="broadcastAlert()" style="background:var(--v-blue); border:none; color:white; border-radius:4px; padding:2px 8px;">הודעה לכולם</button>
-        </div>
-
         <div class="header">
             <h1>Velora</h1>
             <div style="display:flex; gap:15px; font-size:18px;">📸 🔍 ⋮</div>
         </div>
 
         <div class="content-area">
-            <div id="pane-chats" class="tab-pane active">
-                <div class="status-tray" id="status-tray"></div>
+            <div id="tab-chats" class="tab-pane active">
                 <div id="chat-list"></div>
             </div>
 
-            <div id="pane-catalog" class="tab-pane">
-                <div style="padding:15px; border-bottom:1px solid #eee;">
-                    <h2 style="margin:0; font-size:18px;">קטלוג עסקי</h2>
-                    <p style="color:#666; font-size:13px; margin:5px 0 0;">מוצרים ושירותים מבית רפאל דיגיטל</p>
+            <div id="tab-catalog" class="tab-pane">
+                <div style="padding:15px; background:var(--wa-bg);">
+                    <h3 style="margin-bottom:5px;">הקטלוג של רפאל דיגיטל</h3>
+                    <p style="font-size:12px; color:#666;">פתרונות טכנולוגיים מתקדמים</p>
                 </div>
-                <div class="catalog-grid" id="catalog-list">
+                <div class="catalog-container">
                     <div class="product-card">
                         <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" class="product-img">
                         <div class="product-info">
-                            <div style="font-weight:bold;">בניית בוט AI</div>
+                            <b>פיתוח בוטים</b>
+                            <div class="price">₪250 ומעלה</div>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" class="product-img">
+                        <div class="product-info">
+                            <b>עיצוב אתרים</b>
+                            <div class="price">₪800 ומעלה</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="nav-bar">
+            <div class="nav-item active" onclick="switchTab('chats', this)"><div class="nav-icon">💬</div><span>צ'אטים</span></div>
+            <div class="nav-item" onclick="switchTab('catalog', this)"><div class="nav-icon">🛍️</div><span>קטלוג</span></div>
+            <div class="nav-item" onclick="switchTab('updates', this)"><div class="nav-icon">⭕</div><span>עדכונים</span></div>
+            <div class="nav-item" onclick="switchTab('calls', this)"><div class="nav-icon">📞</div><span>שיחות</span></div>
+        </nav>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDunrG_booopCpxqpcGEhbqr5n-HY7glHU",
+            authDomain: "velora-617fa.firebaseapp.com",
+            projectId: "velora-617fa",
+            storageBucket: "velora-617fa.firebasestorage.app",
+            messagingSenderId: "299931306828",
+            appId: "1:299931306828:web:ca3c2533144fba6de49de9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        // תיקון כפתור ההתחברות - שימוש ב-AddEventListener מבטיח לכידה
+        document.getElementById('loginBtn').addEventListener('click', (e) => {
+            console.log("Login Clicked");
+            signInWithPopup(auth, provider).catch(err => alert("שגיאה: " + err.message));
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const isAdmin = user.email === 'rafaeldigital@gmail.com' || user.displayName.includes('Rafael');
+                await setDoc(doc(db, "users", user.uid), {
+                    name: user.displayName, pfp: user.photoURL, role: isAdmin ? 'admin' : 'user', isBusiness: isAdmin
+                }, { merge: true });
+
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                loadUsers(user.uid);
+            }
+        });
+
+        function loadUsers(myId) {
+            onSnapshot(collection(db, "users"), (snap) => {
+                const list = document.getElementById('chat-list');
+                list.innerHTML = '';
+                snap.forEach(d => {
+                    const u = d.data();
+                    if(d.id !== myId) {
+                        list.innerHTML += `<div class="chat-item"><img src="${u.pfp}" class="pfp"><div><b>${u.name}</b><br><small style="color:#666">מחובר</small></div></div>`;
+                    }
+                });
+            });
+        }
+
+        window.switchTab = (tab, el) => {
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            el.classList.add('active');
+        };
+    </script>
+</body>
+</html>
+                        <div style="font-weight:bold;">בניית בוט AI</div>
                             <div class="product-price">₪499</div>
                         </div>
                     </div>
