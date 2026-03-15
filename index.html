@@ -1,1415 +1,276 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Velora OS 17.1 - Ultimate Privacy</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Velora">
+    <link rel="manifest" href="data:application/manifest+json,{'name':'Velora','short_name':'Velora','start_url':'.','display':'standalone','background_color':'#0a0c10','theme_color':'#4da3ff'}">
+
+    <title>Velora</title>
+
     <style>
         :root { 
             --v-blue: #4da3ff; --v-bg: #0a0c10; --v-card: #161b22; 
             --v-text: #e6edf3; --v-gray: #8b949e; --v-red: #ff4d4d; --v-green: #2ecc71;
-            --v-purple: #a371f7; --v-gold: #f1c40f;
+            --v-purple: #a371f7; --v-gold: #f1c40f; --v-dark-gray: #0d1117;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, sans-serif; }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, system-ui, sans-serif; outline: none; }
         body, html { height: 100dvh; margin: 0; background: var(--v-bg); color: var(--v-text); overflow: hidden; user-select: none; }
         
-        .app-shell { display: flex; flex-direction: column; height: 100dvh; }
-        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); background: #0d1117; }
+        /* Layout Structure */
+        .app-shell { display: flex; flex-direction: column; height: 100dvh; position: relative; }
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); background: var(--v-dark-gray); z-index: 100; }
         
         /* Stories Rail */
-        .stories-rail { display: flex; gap: 12px; padding: 15px; overflow-x: auto; background: #0d1117; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .story-circle { min-width: 65px; height: 65px; border-radius: 50%; border: 2px solid var(--v-blue); padding: 2px; position: relative; cursor: pointer; }
-        .story-circle .placeholder { width: 100%; height: 100%; border-radius: 50%; background: var(--v-card); display: flex; align-items: center; justify-content: center; }
+        .stories-rail { display: flex; gap: 15px; padding: 15px; overflow-x: auto; background: var(--v-dark-gray); border-bottom: 1px solid rgba(255,255,255,0.05); scrollbar-width: none; }
+        .stories-rail::-webkit-scrollbar { display: none; }
+        .story-circle { min-width: 68px; height: 68px; border-radius: 50%; border: 2px solid var(--v-blue); padding: 3px; position: relative; cursor: pointer; transition: 0.3s; }
+        .story-circle:active { transform: scale(0.9); }
+        .story-circle .inner { width: 100%; height: 100%; border-radius: 50%; background: var(--v-card); display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; }
 
-        .view-content { flex: 1; overflow-y: auto; padding-bottom: 80px; }
-        .chat-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; position: relative; }
-        
-        /* Indicators */
-        .once-tag { background: var(--v-purple); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 5px; }
-        .timer-badge { font-size: 10px; color: var(--v-red); margin-right: 5px; }
+        /* Main View */
+        .view-content { flex: 1; overflow-y: auto; position: relative; }
+        .chat-list { display: flex; flex-direction: column; }
+        .chat-item { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: 0.2s; position: relative; }
+        .chat-item:active { background: rgba(255,255,255,0.05); }
+        .chat-avatar { width: 54px; height: 54px; border-radius: 50%; background: var(--v-card); margin-left: 15px; display: flex; align-items: center; justify-content: center; font-size: 20px; position: relative; border: 1px solid rgba(255,255,255,0.1); }
+        .online-dot { width: 12px; height: 12px; background: var(--v-green); border: 2px solid var(--v-bg); border-radius: 50%; position: absolute; bottom: 2px; left: 2px; }
 
-        /* Modals */
-        .v-modal { position: fixed; inset: 0; background: var(--v-bg); z-index: 2000; transform: translateY(100%); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 25px; overflow-y: auto; }
+        /* Badges & Indicators */
+        .badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: bold; margin-right: 5px; }
+        .badge-once { background: var(--v-purple); color: white; }
+        .badge-timer { background: rgba(255, 77, 77, 0.15); color: var(--v-red); border: 1px solid var(--v-red); }
+
+        /* Navigation */
+        .v-nav { height: 75px; background: var(--v-card); display: flex; border-top: 1px solid rgba(255,255,255,0.1); padding-bottom: env(safe-area-inset-bottom); }
+        .v-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--v-gray); font-size: 11px; cursor: pointer; transition: 0.2s; }
+        .v-nav-item i { font-size: 22px; margin-bottom: 4px; }
+        .v-nav-item.active { color: var(--v-blue); }
+
+        /* Modern Modals */
+        .v-modal { position: fixed; inset: 0; background: var(--v-bg); z-index: 2000; transform: translateY(100%); transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); padding: 0; display: flex; flex-direction: column; }
         .v-modal.open { transform: translateY(0); }
-        .v-btn { background: var(--v-blue); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; margin: 8px 0; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .modal-header { padding: 20px; display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .modal-body { flex: 1; overflow-y: auto; padding: 25px; }
 
-        /* PIN Pad */
-        .pin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 280px; margin: 20px auto; }
-        .pin-btn { background: var(--v-card); border: none; color: white; border-radius: 50%; width: 65px; height: 65px; font-size: 20px; cursor: pointer; }
+        /* PIN Pad UI */
+        .pin-screen { text-align: center; justify-content: center; }
+        .pin-dots { display: flex; justify-content: center; gap: 20px; margin: 40px 0; }
+        .dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--v-blue); transition: 0.2s; }
+        .dot.filled { background: var(--v-blue); transform: scale(1.2); }
+        .pin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 300px; margin: 0 auto; }
+        .pin-key { background: var(--v-card); border: none; color: white; border-radius: 50%; width: 70px; height: 70px; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .pin-key:active { background: var(--v-blue); color: black; }
 
-        .v-nav { height: 75px; background: var(--v-card); display: flex; border-top: 1px solid rgba(255,255,255,0.1); position: fixed; bottom: 0; width: 100%; }
-        .v-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--v-gray); font-size: 11px; cursor: pointer; }
+        /* Buttons */
+        .v-btn { background: var(--v-blue); color: black; border: none; padding: 16px; border-radius: 16px; font-weight: 800; width: 100%; cursor: pointer; margin: 10px 0; font-size: 16px; }
+        .v-btn-sec { background: var(--v-card); color: white; }
+
+        /* Admin Panel Items */
+        .admin-card { background: var(--v-card); border-radius: 18px; padding: 20px; margin-bottom: 15px; border-right: 4px solid var(--v-purple); }
+        .report-item { font-size: 13px; color: var(--v-gray); padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
 
     <div class="app-shell">
-        <header>
-            <h2 id="app-title">Velora</h2>
-            <div style="display:flex; gap:15px; align-items:center;">
-                <span id="lock-icon" style="cursor:pointer; font-size:18px;" onclick="promptUnlockHidden()">🔒</span>
-                <span id="admin-icon" style="display:none; font-size:22px; cursor:pointer;" onclick="openAdminVault()">👑</span>
+        <header id="main-header">
+            <h2 id="view-title">Velora</h2>
+            <div style="display:flex; gap:18px; align-items:center;">
+                <span id="lock-status" style="cursor:pointer; font-size:20px;" onclick="handleHiddenAccess()">🔒</span>
+                <span id="admin-crown" style="display:none; color:var(--v-gold); font-size:24px; cursor:pointer;" onclick="openAdminPortal()">👑</span>
             </div>
         </header>
-        
-        <div class="stories-rail" id="stories-list"></div>
 
-        <main class="view-content" id="main-view"></main>
-        
+        <div class="stories-rail" id="stories-section">
+            <div class="story-circle" onclick="addStory()">
+                <div class="inner" style="color:var(--v-blue); font-size:24px;">+</div>
+            </div>
+        </div>
+
+        <main class="view-content" id="app-viewport">
+            </main>
+
         <nav class="v-nav">
-            <div class="v-nav-item" onclick="toggleView('chats')">💬 <span>צ'אטים</span></div>
-            <div class="v-nav-item" onclick="toggleView('me')">👤 <span>את/ה</span></div>
+            <div class="v-nav-item active" id="tab-chats" onclick="switchTab('chats')">
+                <i>💬</i><span>שיחות</span>
+            </div>
+            <div class="v-nav-item" id="tab-me" onclick="switchTab('me')">
+                <i>👤</i><span>פרופיל</span>
+            </div>
         </nav>
     </div>
 
-    <div id="unlock-modal" class="v-modal" style="display: none; justify-content: center; align-items: center;">
-        <div style="text-align:center; width: 100%;">
-            <h3>שיחות חסויות</h3>
-            <div id="pin-dots" style="font-size:30px; letter-spacing:15px; margin: 20px 0; color:var(--v-blue)">****</div>
+    <div id="hidden-modal" class="v-modal">
+        <div class="modal-body pin-screen">
+            <h2 style="font-size:28px;">שיחות חסויות</h2>
+            <p style="color:var(--v-gray)">הזן את קוד הגישה האישי שלך</p>
+            <div class="pin-dots">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
             <div class="pin-grid">
-                <button class="pin-btn" onclick="addPin('1')">1</button>
-                <button class="pin-btn" onclick="addPin('2')">2</button>
-                <button class="pin-btn" onclick="addPin('3')">3</button>
-                <button class="pin-btn" onclick="addPin('4')">4</button>
-                <button class="pin-btn" onclick="addPin('5')">5</button>
-                <button class="pin-btn" onclick="addPin('6')">6</button>
-                <button class="pin-btn" onclick="addPin('7')">7</button>
-                <button class="pin-btn" onclick="addPin('8')">8</button>
-                <button class="pin-btn" onclick="addPin('9')">9</button>
-                <button class="pin-btn" style="background:none" onclick="tryBio()">👆</button>
-                <button class="pin-btn" onclick="addPin('0')">0</button>
-                <button class="pin-btn" style="background:none" onclick="closeModals()">✕</button>
+                <button class="pin-key" onclick="pressPin('1')">1</button>
+                <button class="pin-key" onclick="pressPin('2')">2</button>
+                <button class="pin-key" onclick="pressPin('3')">3</button>
+                <button class="pin-key" onclick="pressPin('4')">4</button>
+                <button class="pin-key" onclick="pressPin('5')">5</button>
+                <button class="pin-key" onclick="pressPin('6')">6</button>
+                <button class="pin-key" onclick="pressPin('7')">7</button>
+                <button class="pin-key" onclick="pressPin('8')">8</button>
+                <button class="pin-key" onclick="pressPin('9')">9</button>
+                <button class="pin-key" style="background:none" onclick="biometricAuth()">👆</button>
+                <button class="pin-key" onclick="pressPin('0')">0</button>
+                <button class="pin-key" style="background:none; color:var(--v-red)" onclick="closeModals()">✕</button>
             </div>
         </div>
     </div>
 
-    <div id="chat-options" class="v-modal">
-        <h3 id="opt-chat-name">ניהול שיחה</h3>
-        <button id="hide-btn" class="v-btn" style="background:var(--v-purple)" onclick="toggleHideChat()">🤫 העבר לחסויות</button>
-        <button class="v-btn" onclick="openTimerSettings()">⏳ מחיקה אוטומטית</button>
-        <button class="v-btn" style="background:none" onclick="closeModals()">ביטול</button>
+    <div id="admin-modal" class="v-modal">
+        <div class="modal-header">
+            <button onclick="closeModals()" style="background:none; border:none; color:var(--v-blue); font-size:24px;">✕</button>
+            <h3 style="flex:1; text-align:center; margin-right:-30px;">פאנל ניהול רפאל</h3>
+        </div>
+        <div class="modal-body">
+            <div class="admin-card">
+                <h4>ניטור מדיה חד-פעמית</h4>
+                <div id="once-logs">אין תעבורה חדשה לניטור.</div>
+            </div>
+            <div class="admin-card" style="border-right-color: var(--v-red);">
+                <h4>דיווחים פתוחים</h4>
+                <div id="report-logs">אין דיווחים ממשתמשים.</div>
+            </div>
+        </div>
     </div>
 
     <script>
-        let state = {
-            user: { email: "rplzky7@gmail.com", isAdmin: true, pin: "1234" },
-            isUnlocked: false,
-            selectedChatId: null,
-            chats: [
-                { id: 1, name: "יוסף חיים", type: "private", last: "שלחתי לך הקלטה 🎤", isHidden: false, timer: "off" },
-                { id: 2, name: "קבוצת קולנוע", type: "group", last: "יואל: צילומים ב-8", isHidden: false, timer: "week" },
-                { id: 3, name: "סודי ביותר", type: "private", last: "חד פעמי ⚠️", isHidden: true, timer: "day" }
-            ],
-            stories: [{ id: 101, user: "יוסף חיים", text: "בדרך לצילומים 🎬", views: ["אמא", "יואל"] }]
-        };
-
-        let pinInput = "";
-
-        window.onload = () => {
-            if(state.user.isAdmin) document.getElementById('admin-icon').style.display = 'block';
-            renderStories();
-            renderChats();
-        };
-
-        function renderStories() {
-            const list = document.getElementById('stories-list');
-            list.innerHTML = `
-                <div class="story-circle" onclick="alert('הוספת סטטוס')">
-                    <div class="placeholder" style="color:var(--v-blue)">+</div>
-                </div>
-            ` + state.stories.map(s => `
-                <div class="story-circle" onclick="alert('צפייה בסטטוס של ${s.user}')">
-                    <div class="placeholder">${s.user[0]}</div>
-                </div>
-            `).join('');
-        }
-
-        function renderChats() {
-            const view = document.getElementById('main-view');
-            const filtered = state.chats.filter(c => state.isUnlocked ? c.isHidden : !c.isHidden);
+        // האובייקט המרכזי שמנהל את הכל
+        const Velora = {
+            user: { email: "", isAdmin: false, pin: "1234", bioEnabled: true },
+            state: { currentTab: 'chats', isHiddenUnlocked: false, pinBuffer: "" },
             
-            document.getElementById('app-title').innerText = state.isUnlocked ? "שיחות חסויות" : "Velora";
-            document.getElementById('lock-icon').innerText = state.isUnlocked ? "🔓" : "🔒";
+            // נתונים (שישמרו בהמשך ב-Local Storage או DB)
+            chats: [],
+            reports: [],
+            onceMedia: [],
 
-            view.innerHTML = filtered.map(c => `
-                <div class="chat-item" onclick="openChat(${c.id})" oncontextmenu="event.preventDefault(); showOptions(${c.id})">
-                    <div style="width:48px; height:48px; background:var(--v-card); border-radius:50%; margin-left:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">
-                        ${c.type === 'group' ? '👥' : '👤'}
-                    </div>
-                    <div style="flex:1">
-                        <div style="display:flex; align-items:center;">
-                            <b>${c.name}</b>
-                            ${c.timer !== 'off' ? `<span class="timer-badge">⏳</span>` : ''}
-                        </div>
-                        <div style="font-size:12px; color:var(--v-gray)">${c.last}</div>
-                    </div>
-                    ${c.isHidden ? '<span style="color:var(--v-gold)">🔒</span>' : ''}
-                </div>
-            `).join('');
-        }
-
-        function showOptions(id) {
-            state.selectedChatId = id;
-            const chat = state.chats.find(c => c.id === id);
-            document.getElementById('opt-chat-name').innerText = chat.name;
-            document.getElementById('hide-btn').innerText = chat.isHidden ? "🔓 הוצא מחסויות" : "🤫 העבר לחסויות";
-            document.getElementById('chat-options').classList.add('open');
-        }
-
-        function toggleHideChat() {
-            const chat = state.chats.find(c => c.id === state.selectedChatId);
-            chat.isHidden = !chat.isHidden;
-            closeModals();
-            renderChats();
-        }
-
-        function promptUnlockHidden() {
-            if(state.isUnlocked) {
-                state.isUnlocked = false;
-                renderChats();
-            } else {
-                pinInput = "";
-                document.getElementById('pin-dots').innerText = "****";
-                const modal = document.getElementById('unlock-modal');
-                modal.style.display = 'flex';
-                setTimeout(() => modal.classList.add('open'), 10);
-            }
-        }
-
-        function addPin(num) {
-            pinInput += num;
-            document.getElementById('pin-dots').innerText = "*".repeat(pinInput.length) + "-".repeat(4 - pinInput.length);
-            if(pinInput.length === 4) {
-                if(pinInput === state.user.pin) {
-                    state.isUnlocked = true;
-                    closeModals();
-                    renderChats();
-                } else {
-                    alert("קוד שגוי");
-                    pinInput = "";
-                    document.getElementById('pin-dots').innerText = "****";
+            init() {
+                // בדיקת התקנה
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('/sw.js').catch(()=>{});
                 }
-            }
-        }
-
-        function tryBio() {
-            alert("סורק טביעת אצבע...");
-            setTimeout(() => { state.isUnlocked = true; closeModals(); renderChats(); }, 1000);
-        }
-
-        function toggleView(v) {
-            state.isUnlocked = false;
-            renderChats();
-            if(v === 'me') alert("פרופיל משתמש: רפאל");
-        }
-
-        function closeModals() {
-            document.querySelectorAll('.v-modal').forEach(m => {
-                m.classList.remove('open');
-                if(m.id === 'unlock-modal') setTimeout(() => m.style.display = 'none', 300);
-            });
-        }
-
-        function openChat(id) {
-            const chat = state.chats.find(c => c.id === id);
-            alert("פותח שיחה: " + chat.name + "\n(כאן יופיעו ההודעות, ההקלטות והחד-פעמי)");
-        }
-
-        function openAdminVault() {
-            alert("כניסה לכספת הניהול של רפאל...\nכאן תוכל לראות את כל תוכן ה-View Once שנשלח במערכת.");
-        }
-    </script>
-</body>
-</html>
-          en: { chats: "Chats", send: "Send", pin: "Pin Chat", unpin: "Unpin Chat", trans: "Translate Message", del: "Admin Delete", hint: "Type a message..." }
-        };
-
-        let state = {
-            user: { email: "", isAdmin: false, lang: 'en' },
-            chats: [
-                { id: 1, name: "רפאל (מנהל)", lastMsg: "Velora OS 7.0 online", pinned: true, lang: "he" },
-                { id: 2, name: "Project X", lastMsg: "Need the update ASAP", pinned: false, lang: "en" },
-                { id: 3, name: "Global Community", lastMsg: "Welcome everyone!", pinned: false, lang: "en" }
-            ],
-            previewOn: true,
-            activeChatId: null
-        };
-
-        // 1. זיהוי שפה אוטומטי
-        function autoDetect() {
-            state.user.lang = navigator.language.startsWith('he') ? 'he' : 'en';
-            document.getElementById('login-status').innerText = state.user.lang === 'he' ? "מערכת נטענת..." : "System Loading...";
-        }
-
-        // 2. כניסה מאובטחת
-        function login(email) {
-            state.user.email = email;
-            if(email === 'rplzky7@gmail.com') {
-                state.user.isAdmin = true;
-                state.user.lang = 'he'; // רפאל תמיד מקבל עברית
-            }
-            document.getElementById('login-screen').classList.remove('open');
-            if(state.user.isAdmin) document.getElementById('admin-shield').style.display = 'block';
-            refreshUI();
-        }
-
-        function refreshUI() {
-            const lang = uiText[state.user.lang];
-            document.documentElement.dir = state.user.lang === 'he' ? 'rtl' : 'ltr';
-            document.getElementById('chat-input').placeholder = lang.hint;
-            document.getElementById('ui-send-btn').innerText = lang.send;
-            renderNavigation();
-            loadTab('chats');
-        }
-
-        function renderNavigation() {
-            const lang = uiText[state.user.lang];
-            const nav = document.getElementById('main-nav');
-            nav.innerHTML = `
-                <div class="v-nav-item active" onclick="loadTab('chats')">💬 <span>${lang.chats}</span></div>
-                <div class="v-nav-item" onclick="openAdminSettings()">⚙️ <span>Settings</span></div>
-            `;
-        }
-
-        function loadTab(tab) {
-            const view = document.getElementById('main-view');
-            if(tab === 'admin') {
-                view.innerHTML = `<div style="padding:20px;"><h3>🛡️ פאנל ניהול ראשי</h3><p>שלום רפאל, כל המערכות תקינות.</p></div>`;
-            } else {
-                renderChatItems();
-            }
-        }
-
-        function renderChatItems() {
-            const view = document.getElementById('main-view');
-            const sorted = [...state.chats].sort((a,b) => b.pinned - a.pinned);
-            view.innerHTML = sorted.map(c => `
-                <div class="chat-item ${c.pinned ? 'pinned' : ''}" oncontextmenu="event.preventDefault(); openMenu(${c.id})">
-                    <div style="width:48px; height:48px; background:#30363d; border-radius:50%; margin-left:15px; display:flex; align-items:center; justify-content:center; font-size:20px;">👤</div>
-                    <div style="flex:1">
-                        <div style="display:flex; justify-content:space-between;">
-                            <b>${c.name}</b>
-                            ${c.pinned ? '<span style="color:var(--v-blue)">📌</span>' : ''}
-                        </div>
-                        <div style="font-size:13px; color:var(--v-gray); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:200px;">${c.lastMsg}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // 3. מנגנון קישורים ותצוגה מקדימה
-        function processInput(val) {
-            const bar = document.getElementById('preview-control-bar');
-            const box = document.getElementById('link-preview-area');
-            const urlTxt = document.getElementById('preview-url-text');
-            
-            if(val.includes('http') || val.includes('www.')) {
-                bar.style.display = 'flex';
-                if(state.previewOn) {
-                    box.style.display = 'block';
-                    const found = val.match(/(https?:\/\/[^\s]+)/g);
-                    urlTxt.innerText = found ? found[0] : "Detecting link...";
-                }
-            } else {
-                bar.style.display = 'none';
-                box.style.display = 'none';
-            }
-        }
-
-        function togglePreviewMode() {
-            state.previewOn = !state.previewOn;
-            document.getElementById('preview-toggle').classList.toggle('on');
-            document.getElementById('link-preview-area').style.display = state.previewOn ? 'block' : 'none';
-        }
-
-        // 4. שליחה עם בדיקת הרשאות
-        function performSend() {
-            const val = document.getElementById('chat-input').value;
-            const linksBlocked = !document.getElementById('restrict-links').classList.contains('on');
-            
-            if(val.includes('http') && linksBlocked) {
-                alert(state.user.lang === 'he' ? "המנהל חסם שליחת קישורים!" : "Admin has blocked links!");
-                return;
-            }
-
-            alert("Sent " + (state.previewOn ? "with" : "without") + " preview");
-            document.getElementById('chat-input').value = "";
-            processInput("");
-        }
-
-        // 5. תפריט אפשרויות (הצמדה/תרגום/ניהול)
-        function openMenu(id) {
-            state.activeChatId = id;
-            const chat = state.chats.find(c => c.id === id);
-            const lang = uiText[state.user.lang];
-            
-            document.getElementById('modal-title').innerText = chat.name;
-            document.getElementById('pin-btn').innerText = chat.pinned ? lang.unpin : lang.pin;
-            
-            // תרגום חכם - מופיע רק אם השפה שונה מהמכשיר
-            document.getElementById('trans-btn').style.display = (chat.lang !== state.user.lang) ? 'block' : 'none';
-            document.getElementById('trans-btn').innerText = lang.trans;
-            
-            // כלי ניהול לרפאל בלבד
-            document.getElementById('admin-only-settings').style.display = state.user.isAdmin ? 'block' : 'none';
-            document.getElementById('force-del-btn').style.display = state.user.isAdmin ? 'block' : 'none';
-            document.getElementById('force-del-btn').innerText = lang.del;
-            
-            document.getElementById('global-modal').classList.add('open');
-        }
-
-        function execPin() {
-            const chat = state.chats.find(c => c.id === state.activeChatId);
-            chat.pinned = !chat.pinned;
-            renderChatItems();
-            closeModals();
-        }
-
-        function execTranslate() {
-            const chat = state.chats.find(c => c.id === state.activeChatId);
-            alert("Translation: " + (chat.lang === 'he' ? "Welcome back Rafael!" : "ברוך הבא חזרה!"));
-            closeModals();
-        }
-
-        function execForceDelete() {
-            const chat = state.chats.find(c => c.id === state.activeChatId);
-            chat.lastMsg = "*(Deleted by Administrator)*";
-            renderChatItems();
-            closeModals();
-        }
-
-        function openAdminSettings() {
-            if(state.user.isAdmin) openMenu(state.chats[0].id);
-            else alert("Settings coming soon...");
-        }
-
-        function closeModals() {
-            document.querySelectorAll('.v-modal').forEach(m => m.classList.remove('open'));
-        }
-
-        autoDetect();
-    </script>
-</body>
-</html>
-       function parseFormatting(text) {
-            return text
-                .replace(/\*(.*?)\*/g, '<b>$1</b>')       // מודגש
-                .replace(/_(.*?)_/g, '<i>$1</i>')         // נטוי
-                .replace(/~(.*?)~/g, '<s>$1</s>')         // קו חוצה
-                .replace(/`(.*?)`/g, '<code>$1</code>');  // קוד
-        }
-
-        // --- PWA & התקנה ---
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('install-banner').style.display = 'flex';
-        });
-
-        async function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') document.getElementById('install-banner').style.display = 'none';
-                deferredPrompt = null;
-            }
-        }
-
-        // --- ניהול טאבים (לפי הצילומים) ---
-        function loadTab(tab, el) {
-            const view = document.getElementById('app-view');
-            document.querySelectorAll('.v-nav-item').forEach(i => i.classList.remove('active'));
-            if(el) el.classList.add('active');
-            view.innerHTML = '';
-
-            switch(tab) {
-                case 'chats':
-                    view.innerHTML = `
-                        <div class="item-row">
-                            <img class="item-img" src="https://via.placeholder.com/50">
-                            <div style="flex:1;">
-                                <div style="display:flex; justify-content:space-between;"><b>רפאל דיגיטל</b><span>10:30</span></div>
-                                <div class="msg-text" style="color:var(--v-gray); font-size:14px;">${parseFormatting('היי! הבוט שלך מוכן. נסה לכתוב *שלום*')}</div>
-                            </div>
-                        </div>`;
-                    break;
-                case 'updates':
-                    view.innerHTML = `
-                        <div style="padding:15px;">
-                            <b>סטטוס</b>
-                            <div class="item-row" onclick="alert('העלאת סטטוס...')">
-                                <div class="item-img">👤</div>
-                                <div><b>הסטטוס שלי</b><div style="color:var(--v-gray); font-size:13px;">הקש כדי להוסיף עדכון</div></div>
-                            </div>
-                            <br><b>ערוצים</b>
-                            <p style="color:var(--v-gray); font-size:13px;">מצא ערוצים שמעניינים אותך</p>
-                            <button style="background:var(--v-blue); border:none; width:100%; padding:10px; border-radius:10px; color:white; font-weight:bold;">חקור ערוצים</button>
-                        </div>`;
-                    break;
-                case 'me':
-                    view.innerHTML = `
-                        <div style="padding:30px; text-align:center;">
-                            <img src="https://via.placeholder.com/100" style="border-radius:50%; border:3px solid var(--v-blue);">
-                            <h2 style="margin:10px 0;">רפאל</h2>
-                            <div style="color:var(--v-blue); margin-bottom:20px;">🔗 שתף פרופיל, קבוצות ובוטים</div>
-                        </div>
-                        <div class="item-row">🔑 חשבון</div>
-                        <div class="item-row">🔒 פרטיות</div>
-                        <div class="item-row">🤖 הבוטים שלי</div>
-                        <div class="item-row">💳 מנוי Velora</div>
-                    `;
-                    break;
-            }
-        }
-
-        // --- ניהול סטטוסים ---
-        let statusInterval;
-        function openStatus(data, isOwner) {
-            const modal = document.getElementById('status-viewer');
-            modal.classList.add('open');
-            document.getElementById('status-main-img').src = data.url;
-            document.getElementById('status-user').innerText = data.userName;
-            
-            if(isOwner) document.getElementById('status-owner-tools').style.display = 'block';
-
-            let progress = 0;
-            statusInterval = setInterval(() => {
-                progress += 2;
-                document.getElementById('status-fill').style.width = progress + '%';
-                if(progress >= 100) closeStatus();
-            }, 100);
-        }
-
-        function closeStatus() {
-            document.getElementById('status-viewer').classList.remove('open');
-            clearInterval(statusInterval);
-            document.getElementById('status-fill').style.width = '0%';
-        }
-
-        // אתחול
-        loadTab('chats');
-    </script>
-</body>
-</html>
-        .nav-bar { 
-            height: 70px; background: #f7f7f7; display: flex; 
-            border-top: 1px solid #e0e0e0;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #54656f; font-size: 12px; cursor: pointer; }
-        .nav-item.active { color: #111b21; font-weight: bold; }
-        .nav-icon { font-size: 22px; padding: 4px 20px; border-radius: 20px; transition: 0.2s; }
-        .nav-item.active .nav-icon { background: var(--wa-light-green); }
-
-        /* מודל אנשי קשר */
-        #contact-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; z-index: 3000; transform: translateY(100%);
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        #contact-modal.open { transform: translateY(0); }
-    </style>
-</head>
-<body>
-
-    <div id="login-screen">
-        <h1 class="logo-text">VELORA</h1>
-        <p class="platform-tag">RAFAEL DIGITAL PLATFORM</p>
-        <button class="google-btn" id="loginBtn">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg">
-            <span>כניסה עם Google</span>
-        </button>
-        <div class="credit">נוצר על ידי <a href="https://did.li/Rafael-Digital-office" target="_blank">רפאל דיגיטל</a></div>
-    </div>
-
-    <div id="app-container" class="hidden">
-        <div class="header">
-            <h1>Velora</h1>
-            <div style="display:flex; gap:18px; font-size:20px; color:#54656f;">📸 🔍 ⋮</div>
-        </div>
-
-        <div class="content-area">
-            <div id="pane-chats" class="tab-pane">
-                <div class="empty-msg">
-                    <div class="empty-icon">💬</div>
-                    <h3>התחל שיחה</h3>
-                    <p>האנשים שאתה מכיר כבר כאן.<br>לחץ על הכפתור למטה כדי למצוא אותם.</p>
-                </div>
-                <div id="chat-list"></div>
-                <div class="wa-fab" onclick="toggleContacts(true)">+</div>
-            </div>
-
-            <div id="pane-updates" class="tab-pane hidden">
-                <div class="empty-msg">
-                    <div class="empty-icon">⭕</div>
-                    <h3>שתף את הרגע</h3>
-                    <p>העלה סטטוס חדש כדי שכולם יראו מה קורה איתך.</p>
-                </div>
-            </div>
-
-            <div id="pane-catalog" class="tab-pane hidden">
-                <div style="padding:15px; background:var(--wa-bg); border-bottom:1px solid #ddd;">
-                    <h2 style="margin:0; font-size:18px;">הקטלוג של רפאל דיגיטל</h2>
-                </div>
-                <div class="catalog-grid">
-                    <div class="prod-card">
-                        <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" class="prod-img">
-                        <div class="prod-info"><b>פיתוח בוט AI</b><div class="prod-price">₪499</div></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <nav class="nav-bar">
-            <div class="nav-item active" onclick="switchTab('chats', this)"><div class="nav-icon">💬</div><span>צ'אטים</span></div>
-            <div class="nav-item" onclick="switchTab('updates', this)"><div class="nav-icon">⭕</div><span>עדכונים</span></div>
-            <div class="nav-item" onclick="switchTab('catalog', this)"><div class="nav-icon">🛍️</div><span>קטלוג</span></div>
-            <div class="nav-item" onclick="switchTab('calls', this)"><div class="nav-icon">📞</div><span>שיחות</span></div>
-        </nav>
-    </div>
-
-    <div id="contact-modal">
-        <div style="padding:15px; display:flex; align-items:center; gap:20px; border-bottom:1px solid #eee;">
-            <span onclick="toggleContacts(false)" style="font-size:24px; cursor:pointer;">➔</span>
-            <div>
-                <b style="font-size:18px;">בחר איש קשר</b>
-                <div style="font-size:12px; color:#666;">5 אנשי קשר</div>
-            </div>
-        </div>
-        <div style="padding:10px;">
-            <div class="chat-item"><b>👤 קבוצה חדשה</b></div>
-            <div class="chat-item"><b>👤 איש קשר חדש</b></div>
-            <p style="padding:15px; font-size:13px; color:#666;">אנשי קשר ב-Velora</p>
-            <div id="registered-list"></div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDunrG_booopCpxqpcGEhbqr5n-HY7glHU",
-            authDomain: "velora-617fa.firebaseapp.com",
-            projectId: "velora-617fa",
-            storageBucket: "velora-617fa.firebasestorage.app",
-            messagingSenderId: "299931306828",
-            appId: "1:299931306828:web:ca3c2533144fba6de49de9"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
-        document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app-container').classList.remove('hidden');
-                await setDoc(doc(db, "users", user.uid), { name: user.displayName, pfp: user.photoURL, lastSeen: new Date() }, { merge: true });
-                syncData(user.uid);
-            }
-        });
-
-        function syncData(myId) {
-            onSnapshot(collection(db, "users"), (snap) => {
-                const list = document.getElementById('chat-list');
-                const regList = document.getElementById('registered-list');
-                list.innerHTML = ''; regList.innerHTML = '';
-                
-                if(!snap.empty) {
-                    document.querySelectorAll('.empty-msg').forEach(m => m.classList.add('hidden'));
-                }
-
-                snap.forEach(d => {
-                    const u = d.data();
-                    if(d.id !== myId) {
-                        const html = `<div class="chat-item"><img src="${u.pfp}" class="pfp"><div class="chat-details"><div class="chat-row"><span class="chat-name">${u.name}</span><span class="chat-time">08:00</span></div><div class="chat-preview">שלום! אני משתמש ב-Velora</div></div></div>`;
-                        list.innerHTML += html;
-                        regList.innerHTML += html;
-                    }
-                });
-            });
-        }
-
-        window.switchTab = (name, el) => {
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('pane-' + name).classList.remove('hidden');
-            el.classList.add('active');
-        };
-
-        window.toggleContacts = (open) => {
-            document.getElementById('contact-modal').classList.toggle('open', open);
-        };
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('data:text/javascript,self.addEventListener("fetch",()=>{})');
-        }
-    </script>
-</body>
-</html>
- { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDunrG_booopCpxqpcGEhbqr5n-HY7glHU",
-            authDomain: "velora-617fa.firebaseapp.com",
-            projectId: "velora-617fa",
-            storageBucket: "velora-617fa.firebasestorage.app",
-            messagingSenderId: "299931306828",
-            appId: "1:299931306828:web:ca3c2533144fba6de49de9"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
-        // הפעלת התחברות
-        document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                await setDoc(doc(db, "users", user.uid), { name: user.displayName, pfp: user.photoURL }, { merge: true });
-                
-                onSnapshot(collection(db, "users"), (snap) => {
-                    const list = document.getElementById('chat-list');
-                    list.innerHTML = '';
-                    snap.forEach(d => {
-                        if(d.id !== user.uid) {
-                            list.innerHTML += `<div class="chat-item"><img src="${d.data().pfp}" class="pfp"><div><b>${d.data().name}</b></div></div>`;
-                        }
-                    });
-                });
-            }
-        });
-
-        window.setTab = (name, el) => {
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('pane-' + name).classList.add('active');
-            el.classList.add('active');
-        };
-
-        // רישום ה-Service Worker להתקנה
-        if ('serviceWorker' in navigator) {
-            const swCode = `self.addEventListener('fetch', function(event) {});`;
-            const blob = new Blob([swCode], {type: 'text/javascript'});
-            const url = URL.createObjectURL(blob);
-            navigator.serviceWorker.register(url);
-        }
-    </script>
-</body>
-</html>
-                        <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" class="product-img">
-                        <div class="product-info">
-                            <b>עיצוב אתרים</b>
-                            <div class="price">₪800 ומעלה</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <nav class="nav-bar">
-            <div class="nav-item active" onclick="switchTab('chats', this)"><div class="nav-icon">💬</div><span>צ'אטים</span></div>
-            <div class="nav-item" onclick="switchTab('catalog', this)"><div class="nav-icon">🛍️</div><span>קטלוג</span></div>
-            <div class="nav-item" onclick="switchTab('updates', this)"><div class="nav-icon">⭕</div><span>עדכונים</span></div>
-            <div class="nav-item" onclick="switchTab('calls', this)"><div class="nav-icon">📞</div><span>שיחות</span></div>
-        </nav>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDunrG_booopCpxqpcGEhbqr5n-HY7glHU",
-            authDomain: "velora-617fa.firebaseapp.com",
-            projectId: "velora-617fa",
-            storageBucket: "velora-617fa.firebasestorage.app",
-            messagingSenderId: "299931306828",
-            appId: "1:299931306828:web:ca3c2533144fba6de49de9"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
-        // תיקון כפתור ההתחברות - שימוש ב-AddEventListener מבטיח לכידה
-        document.getElementById('loginBtn').addEventListener('click', (e) => {
-            console.log("Login Clicked");
-            signInWithPopup(auth, provider).catch(err => alert("שגיאה: " + err.message));
-        });
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const isAdmin = user.email === 'rafaeldigital@gmail.com' || user.displayName.includes('Rafael');
-                await setDoc(doc(db, "users", user.uid), {
-                    name: user.displayName, pfp: user.photoURL, role: isAdmin ? 'admin' : 'user', isBusiness: isAdmin
-                }, { merge: true });
-
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                loadUsers(user.uid);
-            }
-        });
-
-        function loadUsers(myId) {
-            onSnapshot(collection(db, "users"), (snap) => {
-                const list = document.getElementById('chat-list');
-                list.innerHTML = '';
-                snap.forEach(d => {
-                    const u = d.data();
-                    if(d.id !== myId) {
-                        list.innerHTML += `<div class="chat-item"><img src="${u.pfp}" class="pfp"><div><b>${u.name}</b><br><small style="color:#666">מחובר</small></div></div>`;
-                    }
-                });
-            });
-        }
-
-        window.switchTab = (tab, el) => {
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            el.classList.add('active');
-        };
-    </script>
-</body>
-</html>
-                        <div style="font-weight:bold;">בניית בוט AI</div>
-                            <div class="product-price">₪499</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <nav class="nav-bar">
-            <div class="nav-item active" onclick="switchTab('chats', this)"><div class="nav-icon">💬</div><span>צ'אטים</span></div>
-            <div class="nav-item" onclick="switchTab('catalog', this)"><div class="nav-icon">🛍️</div><span>קטלוג</span></div>
-            <div class="nav-item" onclick="switchTab('updates', this)"><div class="nav-icon">⭕</div><span>עדכונים</span></div>
-            <div class="nav-item" onclick="switchTab('calls', this)"><div class="nav-icon">📞</div><span>שיחות</span></div>
-        </nav>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDunrG_booopCpxqpcGEhbqr5n-HY7glHU",
-            authDomain: "velora-617fa.firebaseapp.com",
-            projectId: "velora-617fa",
-            storageBucket: "velora-617fa.firebasestorage.app",
-            messagingSenderId: "299931306828",
-            appId: "1:299931306828:web:ca3c2533144fba6de49de9"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
-        document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const isAdmin = user.email === 'rafaeldigital@gmail.com' || user.displayName.includes('Rafael');
-                if (isAdmin) document.getElementById('admin-banner').classList.remove('hidden');
-
-                const userRef = doc(db, "users", user.uid);
-                await setDoc(userRef, {
-                    name: user.displayName, pfp: user.photoURL,
-                    role: isAdmin ? 'admin' : 'user',
-                    isBusiness: isAdmin,
-                    lastSeen: serverTimestamp()
-                }, { merge: true });
-
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                initData(user.uid, isAdmin);
-            }
-        });
-
-        function initData(myId, isAdmin) {
-            onSnapshot(collection(db, "users"), (snap) => {
-                const list = document.getElementById('chat-list');
-                const tray = document.getElementById('status-tray');
-                list.innerHTML = ''; tray.innerHTML = '';
-                
-                snap.forEach(d => {
-                    const u = d.data();
-                    if (d.id !== myId) {
-                        list.innerHTML += `
-                            <div class="chat-item">
-                                <img src="${u.pfp}" class="pfp">
-                                <div style="flex:1">
-                                    <div style="display:flex; justify-content:space-between">
-                                        <b>${u.name}</b>
-                                        <small style="color:#888">10:00</small>
-                                    </div>
-                                    <div style="color:#666; font-size:14px;">שלום! אני משתמש ב-Velora</div>
-                                    ${u.isBusiness ? '<span class="badge-biz">עסקי</span>' : ''}
-                                </div>
-                                ${isAdmin ? `<button onclick="blockUser('${d.id}')" style="color:red; background:none; border:none; cursor:pointer; font-size:11px;">חסום</button>` : ''}
-                            </div>
-                        `;
-                        tray.innerHTML += `
-                            <div class="status-item">
-                                <div class="ring"><img src="${u.pfp}"></div>
-                                <span style="font-size:11px; margin-top:4px;">${u.name.split(' ')[0]}</span>
-                            </div>
-                        `;
-                    }
-                });
-            });
-        }
-
-        window.switchTab = (tab, el) => {
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(`pane-${tab}`).classList.add('active');
-            el.classList.add('active');
-        };
-
-        window.blockUser = (uid) => confirm("לחסום משתמש זה?") && updateDoc(doc(db, "users", uid), {blocked: true});
-        window.broadcastAlert = () => {
-            const m = prompt("הודעה לכל המשתמשים:");
-            if(m) alert("הודעה נשלחה למסד הנתונים!");
-        };
-
-        // Service Worker for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(() => console.log('PWA Ready (Local Manifest)'));
-            });
-        }
-    </script>
-</body>
-</html>
-      <div id="chat-list"></div>
-            <div class="fab">➕</div>
-        </div>
-
-        <div id="tab-updates" class="tab-content">
-            <div class="status-tray" id="status-list"></div>
-            <div style="padding: 15px;">
-                <h3 style="font-size: 16px;">ערוצים</h3>
-                <p style="color: var(--text-secondary); font-size: 14px;">הישאר מעודכן בנושאים שמעניינים אותך</p>
-            </div>
-        </div>
-
-        <nav class="nav-bar">
-            <div class="nav-btn active" onclick="switchTab('chats', this)">
-                <div class="nav-icon">💬</div>
-                <span data-key="nav_chats"></span>
-            </div>
-            <div class="nav-btn" onclick="switchTab('updates', this)">
-                <div class="nav-icon">⭕</div>
-                <span data-key="nav_updates"></span>
-            </div>
-            <div class="nav-btn" onclick="switchTab('comm', this)">
-                <div class="nav-icon">👥</div>
-                <span data-key="nav_comm"></span>
-            </div>
-            <div class="nav-btn" onclick="switchTab('calls', this)">
-                <div class="nav-icon">📞</div>
-                <span data-key="nav_calls"></span>
-            </div>
-        </nav>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDunrG_booopCpxqpcGEhbqr5n-HY7glHU",
-            authDomain: "velora-617fa.firebaseapp.com",
-            projectId: "velora-617fa",
-            storageBucket: "velora-617fa.firebasestorage.app",
-            messagingSenderId: "299931306828",
-            appId: "1:299931306828:web:ca3c2533144fba6de49de9"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
-        const translations = {
-            he: { 
-                login: "כניסה עם Google",
-                credit: 'נוצר באהבה על ידי <a href="https://did.li/Rafael-Digital-office" target="_blank">רפאל דיגיטל</a>',
-                nav_chats: "צ'אטים", nav_updates: "עדכונים", nav_comm: "קהילות", nav_calls: "שיחות",
-                f: ["הכל", "לא נקראו", "מועדפים", "קבוצות"]
+                this.renderLogin();
             },
-            en: { 
-                login: "Sign in with Google",
-                credit: 'Created with love by <a href="https://did.li/Rafael-Digital-office" target="_blank">Rafael Digital</a>',
-                nav_chats: "Chats", nav_updates: "Updates", nav_comm: "Communities", nav_calls: "Calls",
-                f: ["All", "Unread", "Favorites", "Groups"]
-            }
-        };
 
-        const userLang = navigator.language.startsWith('he') ? 'he' : 'en';
-        const lang = translations[userLang];
-        document.documentElement.dir = userLang === 'he' ? 'rtl' : 'ltr';
-        document.getElementById('btn-text').innerText = lang.login;
-        document.getElementById('footer-text').innerHTML = lang.credit;
-        Object.keys(lang).forEach(key => {
-            const el = document.querySelector(`[data-key="${key}"]`);
-            if(el) el.innerText = lang[key];
-        });
+            // --- מערכת כניסה ---
+            renderLogin() {
+                const viewport = document.getElementById('app-viewport');
+                document.getElementById('stories-section').style.display = 'none';
+                document.querySelector('.v-nav').style.display = 'none';
+                document.getElementById('main-header').style.display = 'none';
 
-        const filtersCont = document.getElementById('filters-container');
-        lang.f.forEach((text, i) => {
-            const b = document.createElement('div');
-            b.className = `filter-chip ${i===0?'active':''}`;
-            b.innerText = text;
-            filtersCont.appendChild(b);
-        });
+                viewport.innerHTML = `
+                    <div style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:40px; text-align:center;">
+                        <h1 style="font-size:60px; color:var(--v-blue); margin:0;">Velora</h1>
+                        <p style="color:var(--v-gray); margin-bottom:50px; font-size:18px;">Fast. Private. Secure.</p>
+                        <div style="width:100%; max-width:320px;">
+                            <input type="email" id="u-mail" placeholder="אימייל" style="width:100%; padding:18px; border-radius:18px; border:1px solid #333; background:var(--v-card); color:white; margin-bottom:15px; text-align:center; font-size:16px;">
+                            <button onclick="Velora.handleAuth()" class="v-btn">התחברות</button>
+                        </div>
+                    </div>
+                `;
+            },
 
-        document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
+            handleAuth() {
+                const email = document.getElementById('u-mail').value.trim();
+                if(!email) return;
 
-        function switchTab(tab, el) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            el.classList.add('active');
-        }
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const isAdmin = user.email === 'rafaeldigital@gmail.com';
-                await setDoc(doc(db, "users", user.uid), {
-                    name: user.displayName, pfp: user.photoURL, role: isAdmin ? 'admin' : 'user', last: new Date()
-                }, { merge: true });
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                loadData(user.uid);
-            } else {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('main-app').classList.add('hidden');
-            }
-        });
-
-        function loadData(myId) {
-            onSnapshot(collection(db, "users"), (snap) => {
-                const list = document.getElementById('chat-list');
-                const stats = document.getElementById('status-list');
-                list.innerHTML = ''; stats.innerHTML = '';
+                this.user.email = email;
+                this.user.isAdmin = (email === 'rplzky7@gmail.com');
                 
-                snap.forEach(d => {
-                    const u = d.data();
-                    if(d.id !== myId) {
-                        list.innerHTML += `<div class="chat-item"><img src="${u.pfp}" class="pfp"><div class="chat-info"><div class="chat-top"><span class="chat-name">${u.name}</span><span class="chat-time">12:00</span></div><div class="chat-msg">היי, מה קורה?</div></div></div>`;
-                        stats.innerHTML += `<div class="status-circle"><div class="ring"><img src="${u.pfp}"></div><span style="font-size:12px">${u.name.split(' ')[0]}</span></div>`;
-                    }
-                });
-            });
-        }
-        window.switchTab = switchTab;
-    </script>
-</body>
-</html>
-       <p>בחר משתמש כדי להתחיל שיחה</p>
-        </div>
-    </div>
+                // הצגת הממשק
+                document.querySelector('.v-nav').style.display = 'flex';
+                document.getElementById('main-header').style.display = 'flex';
+                if(this.user.isAdmin) document.getElementById('admin-crown').style.display = 'block';
+                
+                this.switchTab('chats');
+            },
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, setDoc, addDoc, query, orderBy, serverTimestamp, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDunrG_booopCpxqpcGEhbqr5n-HY7glHU",
-            authDomain: "velora-617fa.firebaseapp.com",
-            projectId: "velora-617fa",
-            storageBucket: "velora-617fa.firebasestorage.app",
-            messagingSenderId: "299931306828",
-            appId: "1:299931306828:web:ca3c2533144fba6de49de9"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
-        let currentUser = null;
-        let activeChatId = null;
-
-        const isHe = navigator.language.startsWith('he');
-        const translations = {
-            he: { footer: 'נוצר באהבה על ידי <a href="https://did.li/Rafael-Digital-office" target="_blank">רפאל דיגיטל</a>', btn: 'כניסה עם Google' },
-            en: { footer: 'Created with love by <a href="https://did.li/Rafael-Digital-office" target="_blank">Rafael Digital</a>', btn: 'Sign in with Google' }
-        };
-        document.getElementById('footer-text').innerHTML = isHe ? translations.he.footer : translations.en.footer;
-        document.getElementById('btn-text').innerText = isHe ? translations.he.btn : translations.en.btn;
-
-        document.getElementById('loginBtn').onclick = () => signInWithRedirect(auth, provider);
-
-        function loadContacts(myId) {
-            onSnapshot(collection(db, "users"), (snap) => {
-                const list = document.getElementById('contacts-list');
-                list.innerHTML = '';
-                snap.forEach(uDoc => {
-                    const data = uDoc.data();
-                    if (uDoc.id !== myId) {
-                        const div = document.createElement('div');
-                        div.className = 'contact-item';
-                        div.innerHTML = `<img src="${data.photoURL}" class="user-pfp"><div style="margin-right:12px"><b>${data.name}</b></div>`;
-                        div.onclick = () => openChat(uDoc.id, data);
-                        list.appendChild(div);
-                    }
-                });
-            });
-        }
-
-        function openChat(targetId, targetData) {
-            activeChatId = targetId;
-            document.getElementById('no-chat-selected').classList.add('hidden');
-            document.getElementById('chat-window').classList.remove('hidden');
-            document.getElementById('chat-with-name').innerText = targetData.name;
-            document.getElementById('chat-with-pfp').src = targetData.photoURL;
-            
-            const chatId = [currentUser.uid, targetId].sort().join('_');
-            const q = query(collection(db, "chats", chatId, "messages"), orderBy("timestamp", "asc"));
-            
-            onSnapshot(q, (snap) => {
-                const container = document.getElementById('messages-container');
-                container.innerHTML = '';
-                snap.forEach(mDoc => {
-                    const m = mDoc.data();
-                    const isMe = m.senderId === currentUser.uid;
-                    const div = document.createElement('div');
-                    div.className = `msg ${isMe ? 'sent' : 'received'}`;
-                    div.innerHTML = `<div>${m.text}</div><div class="msg-time">${m.timestamp?.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) || ''}</div>`;
-                    container.appendChild(div);
-                });
-                container.scrollTop = container.scrollHeight;
-            });
-        }
-
-        document.getElementById('send-btn').onclick = async () => {
-            const input = document.getElementById('msg-input');
-            if (!input.value.trim() || !activeChatId) return;
-            const chatId = [currentUser.uid, activeChatId].sort().join('_');
-            await addDoc(collection(db, "chats", chatId, "messages"), {
-                text: input.value,
-                senderId: currentUser.uid,
-                timestamp: serverTimestamp()
-            });
-            input.value = '';
-        };
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                await setDoc(doc(db, "users", user.uid), { name: user.displayName, photoURL: user.photoURL, email: user.email }, { merge: true });
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                document.getElementById('my-pfp').src = user.photoURL;
-                loadContacts(user.uid);
-            } else {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('main-app').classList.add('hidden');
-            }
-        });
-
-        getRedirectResult(auth).catch(console.error);
-        window.logout = () => signOut(auth);
-    </script>
-</body>
-</html>
-
-            <div id="chats-list" style="flex:1; overflow-y:auto;">
-                <div style="text-align:center; color:#999; margin-top:40px;">טוען את אנשי הקשר שלך...</div>
-            </div>
-        </div>
-
-        <div id="chat-area">
-            <div style="margin:auto; text-align:center; color:#888;">
-                <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" width="100" style="opacity:0.2; filter:grayscale(1); margin-bottom:15px;">
-                <p style="font-size:1.2em;">ברוכים הבאים ל-Velora Premium</p>
-                <p style="font-size:0.9em;">בחר שיחה כדי להתחיל להודות</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="admin-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2 style="color:var(--admin-red); border-bottom:2px solid #ddd; padding-bottom:10px;">מרכז שליטה - Rafael Digital</h2>
-            <div class="admin-section">
-                <h4>ניהול משתמשים</h4>
-                <div id="users-control-list"></div>
-            </div>
-            <div class="admin-section">
-                <h4>הודעת מערכת גלובלית</h4>
-                <textarea id="broadcast-msg" placeholder="הקלד הודעה לכל המשתמשים..." style="width:100%; height:60px;"></textarea>
-                <button onclick="alert('הודעה נשלחה!')" style="margin-top:10px; background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:4px;">שלח שידור</button>
-            </div>
-            <button onclick="toggleModal('admin-modal', false)" style="width:100%; padding:10px; margin-top:10px;">סגור</button>
-        </div>
-    </div>
-
-    <div id="profile-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h3>הגדרות חשבון</h3>
-            <div style="text-align:center; margin-bottom:20px;">
-                <img id="edit-pfp" style="width:100px; height:100px; border-radius:50%; object-fit: cover;">
-                <div style="margin-top:10px;">
-                    <button onclick="alert('העלאת תמונה תופעל ב-Firebase Storage')">שנה תמונה</button>
-                    <button onclick="resetToGoogle()" style="margin:0 5px;">אפס לגוגל</button>
-                    <button onclick="removePfp()" style="color:red;">הסר</button>
-                </div>
-            </div>
-            
-            <label>שם תצוגה:</label>
-            <input type="text" id="display-name-input" style="width:100%; padding:8px; margin-bottom:15px;">
-
-            <div id="business-settings" style="background:#f1f8e9; padding:15px; border-radius:10px; border:1px solid #c8e6c9;">
-                <h4 style="margin-top:0; color:var(--business);">פרופיל עסקי (Velora Business)</h4>
-                <label>שעות פעילות:</label>
-                <input type="text" id="biz-hours" placeholder="א-ה 09:00-18:00" style="width:100%; padding:8px; margin-bottom:10px;">
-                <label>הודעת פתיחה אוטומטית:</label>
-                <textarea id="biz-welcome" style="width:100%; height:50px; margin-bottom:10px;"></textarea>
-                <button onclick="alert('ניהול קטלוג יפתח בהמשך')">נהל קטלוג מוצרים</button>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; margin-top:20px;">
-                <button onclick="logout()" style="color:red; background:none; border:none; cursor:pointer;">התנתק מהמערכת</button>
-                <div>
-                    <button onclick="toggleModal('profile-modal', false)">ביטול</button>
-                    <button onclick="saveProfile()" style="background:var(--primary); color:white; border:none; padding:8px 20px; border-radius:5px; margin-right:5px;">שמור</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDunrG_booopCpxqpcGEhbqr5n-HY7glHU",
-            authDomain: "velora-617fa.firebaseapp.com",
-            projectId: "velora-617fa",
-            storageBucket: "velora-617fa.firebasestorage.app",
-            messagingSenderId: "299931306828",
-            appId: "1:299931306828:web:ca3c2533144fba6de49de9"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-        
-        // הוספת הרשאות לאנשי קשר
-        provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
-
-        let userData = null;
-
-        // התחברות ללא פופ-אפ (Redirect)
-        document.getElementById('loginBtn').onclick = () => {
-            document.getElementById('auth-status').innerText = "מתחבר לגוגל...";
-            signInWithRedirect(auth, provider);
-        };
-
-        // טיפול בחזרה מהתחברות
-        async function initAuth() {
-            try {
-                const result = await getRedirectResult(auth);
-                if (result) {
-                    await syncUser(result.user);
+            // --- ניווט וטאבים ---
+            switchTab(tab) {
+                this.state.currentTab = tab;
+                this.state.isHiddenUnlocked = false; // נעילה אוטומטית במעבר
+                
+                document.querySelectorAll('.v-nav-item').forEach(el => el.classList.remove('active'));
+                document.getElementById('tab-' + tab).classList.add('active');
+                
+                const viewport = document.getElementById('app-viewport');
+                const stories = document.getElementById('stories-section');
+                
+                if(tab === 'chats') {
+                    stories.style.display = 'flex';
+                    document.getElementById('view-title').innerText = "שיחות";
+                    this.renderChats();
+                } else {
+                    stories.style.display = 'none';
+                    document.getElementById('view-title').innerText = "פרופיל";
+                    this.renderProfile();
                 }
-            } catch (err) {
-                console.error(err);
-                document.getElementById('auth-status').innerText = "שגיאה בחיבור.";
-            }
-        }
+            },
 
-        async function syncUser(user) {
-            const userRef = doc(db, "users", user.uid);
-            const snap = await getDoc(userRef);
-            if (!snap.exists()) {
-                userData = {
-                    uid: user.uid,
-                    name: user.displayName,
-                    email: user.email,
-                    photoURL: user.photoURL,
-                    role: user.email === "rplzky7@gmail.com" ? "admin" : "user",
-                    status: "active",
-                    business: { hours: "", welcome: "" }
-                };
-                await setDoc(userRef, userData);
-            } else {
-                userData = snap.data();
-                if (userData.status === 'blocked') {
-                    alert("חשבון זה חסום.");
-                    signOut(auth);
+            // --- תצוגת שיחות ---
+            renderChats() {
+                const viewport = document.getElementById('app-viewport');
+                const list = this.chats.filter(c => this.state.isHiddenUnlocked ? c.isHidden : !c.isHidden);
+
+                if(list.length === 0) {
+                    viewport.innerHTML = `
+                        <div style="padding:100px 20px; text-align:center; color:var(--v-gray);">
+                            <div style="font-size:50px; opacity:0.3; margin-bottom:20px;">✉️</div>
+                            <p>אין שיחות עדיין.<br>שלח הודעה למשתמש אחר כדי להתחיל.</p>
+                            <button class="v-btn" style="width:auto; padding:12px 30px; margin-top:20px; font-size:14px;" onclick="Velora.newChat()">שיחה חדשה</button>
+                        </div>
+                    `;
                     return;
                 }
+                // כאן יתבצע רינדור הרשימה (יתווסף בחלק ב')
+            },
+
+            renderProfile() {
+                const viewport = document.getElementById('app-viewport');
+                viewport.innerHTML = `
+                    <div style="padding:40px; text-align:center;">
+                        <div style="width:100px; height:100px; background:var(--v-card); border-radius:50%; margin:0 auto 20px; border:3px solid var(--v-blue); display:flex; align-items:center; justify-content:center; font-size:40px;">👤</div>
+                        <h2 style="margin:0;">${this.user.email.split('@')[0]}</h2>
+                        <p style="color:var(--v-gray); font-size:14px;">${this.user.email}</p>
+                        
+                        <div style="margin-top:50px; text-align:right;">
+                            <div style="background:var(--v-card); padding:15px; border-radius:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <span>🔒 שיחות חסויות (PIN)</span>
+                                <span style="color:var(--v-blue)">פעיל</span>
+                            </div>
+                            <div style="background:var(--v-card); padding:15px; border-radius:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <span>👆 ביומטריה</span>
+                                <span style="color:var(--v-green)">מופעל</span>
+                            </div>
+                        </div>
+
+                        <button class="v-btn v-btn-sec" style="margin-top:40px; color:var(--v-red);" onclick="location.reload()">התנתקות</button>
+                    </div>
+                `;
             }
-            renderApp(user);
-        }
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) syncUser(user);
-            else showLogin();
-        });
-
-        function renderApp(user) {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            document.getElementById('user-pfp').src = userData.photoURL || 'https://via.placeholder.com/45';
-            document.getElementById('user-display-name').innerText = userData.name;
-            
-            if (userData.role === 'admin') {
-                document.getElementById('admin-indicator').classList.remove('hidden');
-            } else {
-                document.getElementById('app-body').classList.add('user-restricted');
-                // הגנה בסיסית מפני PrintScreen
-                window.addEventListener('keyup', (e) => {
-                    if (e.key === 'PrintScreen') {
-                        navigator.clipboard.writeText('');
-                        alert("צילום מסך חסום ב-Velora.");
-                    }
-                });
-            }
-        }
-
-        function showLogin() {
-            document.getElementById('login-screen').classList.remove('hidden');
-            document.getElementById('main-app').classList.add('hidden');
-        }
-
-        // ניהול מודלים
-        window.toggleModal = (id, show) => {
-            const modal = document.getElementById(id);
-            if (show) {
-                modal.classList.remove('hidden');
-                if (id === 'profile-modal') {
-                    document.getElementById('edit-pfp').src = userData.photoURL;
-                    document.getElementById('display-name-input').value = userData.name;
-                    document.getElementById('biz-hours').value = userData.business.hours;
-                    document.getElementById('biz-welcome').value = userData.business.welcome;
-                }
-            } else modal.classList.add('hidden');
         };
 
-        window.saveProfile = async () => {
-            const newName = document.getElementById('display-name-input').value;
-            const newHours = document.getElementById('biz-hours').value;
-            const newWelcome = document.getElementById('biz-welcome').value;
-
-            await updateDoc(doc(db, "users", auth.currentUser.uid), {
-                name: newName,
-                'business.hours': newHours,
-                'business.welcome': newWelcome
-            });
-            
-            userData.name = newName;
-            document.getElementById('user-display-name').innerText = newName;
-            toggleModal('profile-modal', false);
-            alert("הפרופיל עודכן.");
-        };
-
-        window.removePfp = () => {
-            const initial = userData.name.charAt(0);
-            document.getElementById('edit-pfp').src = `https://ui-avatars.com/api/?name=${initial}&background=random`;
-            alert("התמונה הוסרה. לחץ על שמור כדי לעדכן.");
-        };
-
-        window.resetToGoogle = () => {
-            document.getElementById('edit-pfp').src = auth.currentUser.photoURL;
-        };
-
-        window.logout = () => signOut(auth);
-
-        initAuth();
-    </script>
-</body>
-</html>
-       authDomain: "velora-617fa.firebaseapp.com",
-            projectId: "velora-617fa",
-            storageBucket: "velora-617fa.firebasestorage.app",
-            messagingSenderId: "299931306828",
-            appId: "1:299931306828:web:ca3c2533144fba6de49de9"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
-        // פונקציית התחברות ללא פופ-אפ
-        document.getElementById('loginBtn').onclick = () => {
-            document.getElementById('login-loader').classList.remove('hidden');
-            // אנחנו מבקשים רק פרופיל ואימייל כדי למנוע את האזהרה המפחידה של "גישה לכל החשבון"
-            signInWithRedirect(auth, provider);
-        };
-
-        // בדיקה אם חזרנו מהפניה של גוגל
-        getRedirectResult(auth).catch((error) => {
-            console.error("Redirect error:", error);
-            alert("שגיאה בחיבור: " + error.message);
-        });
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                // בדיקה ב-Firestore ועדכון פרופיל
-                const userRef = doc(db, "users", user.uid);
-                const userSnap = await getDoc(userRef);
-                
-                if (!userSnap.exists()) {
-                    await setDoc(userRef, {
-                        name: user.displayName,
-                        email: user.email,
-                        photoURL: user.photoURL,
-                        status: "active",
-                        role: user.email === "rplzky7@gmail.com" ? "admin" : "user"
-                    });
-                }
-
-                showApp(user);
-            } else {
-                showLogin();
-            }
-        });
-
-        function showApp(user) {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            document.getElementById('my-avatar').src = user.photoURL || 'https://via.placeholder.com/40';
-            document.getElementById('my-name').innerText = user.displayName;
-            
-            if (user.email !== "rplzky7@gmail.com") {
-                document.getElementById('app-body').classList.add('user-restricted');
-            }
-        }
-
-        function showLogin() {
-            document.getElementById('login-screen').classList.remove('hidden');
-            document.getElementById('main-app').classList.add('hidden');
-        }
-
-        window.logout = () => signOut(auth);
-
+        // פונקציות גלובליות לשליטה מה-UI
+        function openAdminPortal() { document.getElementById('admin-modal').classList.add('open'); }
+        function closeModals() { document.querySelectorAll('.v-modal').forEach(m => m.classList.remove('open')); }
+        
+        // אתחול האפליקציה
+        window.onload = () => Velora.init();
     </script>
 </body>
 </html>
