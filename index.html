@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+     <!DOCTYPE html>
 <html lang="he" id="main-html" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -9,68 +9,89 @@
         :root { 
             --primary: #1a237e; --primary-light: #534bae; --accent: #c5a059; 
             --bg-chat: #e5ddd5; --bg-main: #f0f2f5; --business: #004d40;
+            --admin-red: #b71c1c;
         }
 
-        /* מניעת העתקה וצילום מסך למשתמשים */
+        /* הגנות פרטיות מחמירות */
         body.user-restricted { -webkit-user-select: none; user-select: none; }
-        
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg-main); height: 100vh; overflow: hidden; display: flex; }
+        body.user-restricted img { pointer-events: none; }
+
+        body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-main); height: 100vh; overflow: hidden; display: flex; }
         .hidden { display: none !important; }
 
-        /* מסך כניסה מעוצב */
+        /* מסך כניסה יוקרתי */
         #login-screen {
             position: fixed; inset: 0; background: linear-gradient(135deg, #1a237e 0%, #000051 100%);
-            z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white;
+            z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center;
         }
         .login-card {
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);
-            text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
+            padding: 50px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4); max-width: 400px;
         }
         .google-btn {
-            background: white; color: #444; padding: 12px 25px; border-radius: 5px;
+            background: white; color: #444; padding: 14px 28px; border-radius: 8px;
             border: none; font-size: 16px; font-weight: bold; cursor: pointer;
-            display: flex; align-items: center; gap: 10px; margin-top: 20px; transition: 0.3s;
+            display: flex; align-items: center; gap: 12px; margin: 25px auto 0; transition: 0.3s;
         }
         .google-btn:hover { background: #f1f1f1; transform: translateY(-2px); }
-        .footer-credit { position: absolute; bottom: 20px; font-size: 12px; opacity: 0.7; }
+        .footer-credit { position: absolute; bottom: 30px; font-size: 13px; opacity: 0.8; }
+        .footer-credit a { color: white; text-decoration: none; font-weight: bold; border-bottom: 1px solid white; }
 
-        /* סיידבר ופילטרים (לפי התמונה) */
-        #sidebar { width: 350px; background: white; border-left: 1px solid #ddd; display: flex; flex-direction: column; }
-        .filter-bar { display: flex; gap: 8px; padding: 10px; overflow-x: auto; background: white; border-bottom: 1px solid #eee; }
-        .filter-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; white-space: nowrap; font-size: 14px; }
+        /* פריסת הממשק */
+        #sidebar { width: 380px; background: white; border-left: 1px solid #ddd; display: flex; flex-direction: column; z-index: 10; }
+        #chat-area { flex: 1; display: flex; flex-direction: column; background: var(--bg-chat); position: relative; }
+
+        /* סנני צ'אט (לפי התמונה) */
+        .filter-bar { display: flex; gap: 8px; padding: 12px; overflow-x: auto; background: white; border-bottom: 1px solid #eee; }
+        .filter-btn { padding: 8px 18px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; white-space: nowrap; font-size: 14px; transition: 0.2s; }
         .filter-btn.active { background: #e7f5e9; color: #15803d; border-color: #15803d; }
+        .filter-btn span { font-size: 11px; margin-right: 4px; opacity: 0.7; }
 
-        /* חלון צ'אט */
-        #chat-area { flex: 1; display: flex; flex-direction: column; background: var(--bg-chat); }
-        .msg { padding: 10px; margin: 5px; border-radius: 8px; max-width: 75%; position: relative; }
-        .sent { align-self: flex-end; background: #d9fdd3; }
-        .received { align-self: flex-start; background: white; }
+        /* מודלים (חלונות קופצים פנימיים) */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 5000; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: white; width: 100%; max-width: 500px; padding: 25px; border-radius: 15px; max-height: 90vh; overflow-y: auto; }
+        
+        .biz-tag { background: var(--business); color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 5px; }
+        .admin-section { border-right: 4px solid var(--admin-red); padding-right: 15px; margin-bottom: 20px; background: #fff5f5; padding: 10px; border-radius: 5px; }
+
+        /* כפתור הוספה (+) */
+        .add-btn { min-width: 40px; height: 40px; border-radius: 50%; border: 1px solid #ddd; background: #f9f9f9; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body id="app-body">
 
     <div id="login-screen">
         <div class="login-card">
-            <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" width="100" style="margin-bottom: 20px;">
-            <h1 style="margin: 0;">Velora</h1>
-            <p style="opacity: 0.8;">הדור הבא של התקשורת העסקית</p>
+            <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" width="110" style="margin-bottom: 20px;">
+            <h1 style="margin: 0; font-size: 2.5em; letter-spacing: 2px;">Velora</h1>
+            <p style="opacity: 0.9; margin-top: 10px; line-height: 1.5;">זה מופיע במסך ההסכמה, ועוזר למשתמשי הקצה לדעת מי אתה וליצור איתך קשר</p>
             
             <button class="google-btn" id="loginBtn">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="20">
-                התחברות מהירה עם Google
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="22">
+                התחברות מאובטחת עם Google
             </button>
-            <div id="login-loader" class="hidden" style="margin-top:15px;">מתחבר...</div>
+            <div id="auth-status" style="margin-top:20px; font-size:14px; min-height: 20px;"></div>
         </div>
-        <div class="footer-credit">נבנה בגאווה ע"י Rafael Digital</div>
+        <div class="footer-credit">
+            נבנה באהבה ע"י <a href="https://velora-app-alpha.vercel.app/" target="_blank">Rafael Digital</a>
+        </div>
     </div>
 
-    <div id="main-app" class="hidden" style="display:flex; width:100%;">
+    <div id="main-app" class="hidden" style="display:flex; width:100%; height:100vh;">
         <div id="sidebar">
-            <div style="background:var(--primary); padding:15px; color:white; display:flex; justify-content:space-between; align-items:center;">
-                <img id="my-avatar" style="width:40px; height:40px; border-radius:50%; border:2px solid white;">
-                <span id="my-name" style="font-weight:bold;"></span>
-                <button onclick="logout()" style="background:none; border:none; color:white; cursor:pointer;">יציאה</button>
+            <div style="background:var(--primary); padding:18px; color:white; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="toggleModal('profile-modal', true)">
+                    <img id="user-pfp" style="width:45px; height:45px; border-radius:50%; border:2px solid white; object-fit: cover;">
+                    <span id="user-display-name" style="font-weight:bold; font-size:1.1em;"></span>
+                </div>
+                <div id="admin-indicator" class="hidden">
+                    <button onclick="toggleModal('admin-modal', true)" style="background:var(--accent); border:none; padding:5px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">ניהול</button>
+                </div>
+            </div>
+
+            <div style="padding:12px; background:#f0f2f5;">
+                <input type="text" placeholder="חפש בצ'אט..." style="width:100%; padding:10px 15px; border-radius:25px; border:none; outline:none; box-sizing:border-box;">
             </div>
 
             <div class="filter-bar">
@@ -78,18 +99,69 @@
                 <button class="filter-btn">לא נקראו <span>24</span></button>
                 <button class="filter-btn">מועדפים</button>
                 <button class="filter-btn">קבוצות <span>22</span></button>
-                <button class="filter-btn">+</button>
+                <button class="add-btn">+</button>
             </div>
 
-            <div id="chats-list" style="flex:1; overflow-y:auto; padding:10px;">
-                <div style="text-align:center; color:#888; margin-top:20px;">אין שיחות פעילות</div>
+            <div id="chats-list" style="flex:1; overflow-y:auto;">
+                <div style="text-align:center; color:#999; margin-top:40px;">טוען את אנשי הקשר שלך...</div>
             </div>
         </div>
 
         <div id="chat-area">
             <div style="margin:auto; text-align:center; color:#888;">
-                <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" width="80" style="opacity:0.3; filter:grayscale(1);">
-                <p>בחר צ'אט כדי להתחיל</p>
+                <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" width="100" style="opacity:0.2; filter:grayscale(1); margin-bottom:15px;">
+                <p style="font-size:1.2em;">ברוכים הבאים ל-Velora Premium</p>
+                <p style="font-size:0.9em;">בחר שיחה כדי להתחיל להודות</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 style="color:var(--admin-red); border-bottom:2px solid #ddd; padding-bottom:10px;">מרכז שליטה - Rafael Digital</h2>
+            <div class="admin-section">
+                <h4>ניהול משתמשים</h4>
+                <div id="users-control-list"></div>
+            </div>
+            <div class="admin-section">
+                <h4>הודעת מערכת גלובלית</h4>
+                <textarea id="broadcast-msg" placeholder="הקלד הודעה לכל המשתמשים..." style="width:100%; height:60px;"></textarea>
+                <button onclick="alert('הודעה נשלחה!')" style="margin-top:10px; background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:4px;">שלח שידור</button>
+            </div>
+            <button onclick="toggleModal('admin-modal', false)" style="width:100%; padding:10px; margin-top:10px;">סגור</button>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3>הגדרות חשבון</h3>
+            <div style="text-align:center; margin-bottom:20px;">
+                <img id="edit-pfp" style="width:100px; height:100px; border-radius:50%; object-fit: cover;">
+                <div style="margin-top:10px;">
+                    <button onclick="alert('העלאת תמונה תופעל ב-Firebase Storage')">שנה תמונה</button>
+                    <button onclick="resetToGoogle()" style="margin:0 5px;">אפס לגוגל</button>
+                    <button onclick="removePfp()" style="color:red;">הסר</button>
+                </div>
+            </div>
+            
+            <label>שם תצוגה:</label>
+            <input type="text" id="display-name-input" style="width:100%; padding:8px; margin-bottom:15px;">
+
+            <div id="business-settings" style="background:#f1f8e9; padding:15px; border-radius:10px; border:1px solid #c8e6c9;">
+                <h4 style="margin-top:0; color:var(--business);">פרופיל עסקי (Velora Business)</h4>
+                <label>שעות פעילות:</label>
+                <input type="text" id="biz-hours" placeholder="א-ה 09:00-18:00" style="width:100%; padding:8px; margin-bottom:10px;">
+                <label>הודעת פתיחה אוטומטית:</label>
+                <textarea id="biz-welcome" style="width:100%; height:50px; margin-bottom:10px;"></textarea>
+                <button onclick="alert('ניהול קטלוג יפתח בהמשך')">נהל קטלוג מוצרים</button>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                <button onclick="logout()" style="color:red; background:none; border:none; cursor:pointer;">התנתק מהמערכת</button>
+                <div>
+                    <button onclick="toggleModal('profile-modal', false)">ביטול</button>
+                    <button onclick="saveProfile()" style="background:var(--primary); color:white; border:none; padding:8px 20px; border-radius:5px; margin-right:5px;">שמור</button>
+                </div>
             </div>
         </div>
     </div>
@@ -97,11 +169,149 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDunrG_booopCpxqpcGEhbqr5n-HY7glHU",
             authDomain: "velora-617fa.firebaseapp.com",
+            projectId: "velora-617fa",
+            storageBucket: "velora-617fa.firebasestorage.app",
+            messagingSenderId: "299931306828",
+            appId: "1:299931306828:web:ca3c2533144fba6de49de9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+        
+        // הוספת הרשאות לאנשי קשר
+        provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+
+        let userData = null;
+
+        // התחברות ללא פופ-אפ (Redirect)
+        document.getElementById('loginBtn').onclick = () => {
+            document.getElementById('auth-status').innerText = "מתחבר לגוגל...";
+            signInWithRedirect(auth, provider);
+        };
+
+        // טיפול בחזרה מהתחברות
+        async function initAuth() {
+            try {
+                const result = await getRedirectResult(auth);
+                if (result) {
+                    await syncUser(result.user);
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('auth-status').innerText = "שגיאה בחיבור.";
+            }
+        }
+
+        async function syncUser(user) {
+            const userRef = doc(db, "users", user.uid);
+            const snap = await getDoc(userRef);
+            if (!snap.exists()) {
+                userData = {
+                    uid: user.uid,
+                    name: user.displayName,
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    role: user.email === "rplzky7@gmail.com" ? "admin" : "user",
+                    status: "active",
+                    business: { hours: "", welcome: "" }
+                };
+                await setDoc(userRef, userData);
+            } else {
+                userData = snap.data();
+                if (userData.status === 'blocked') {
+                    alert("חשבון זה חסום.");
+                    signOut(auth);
+                    return;
+                }
+            }
+            renderApp(user);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) syncUser(user);
+            else showLogin();
+        });
+
+        function renderApp(user) {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('user-pfp').src = userData.photoURL || 'https://via.placeholder.com/45';
+            document.getElementById('user-display-name').innerText = userData.name;
+            
+            if (userData.role === 'admin') {
+                document.getElementById('admin-indicator').classList.remove('hidden');
+            } else {
+                document.getElementById('app-body').classList.add('user-restricted');
+                // הגנה בסיסית מפני PrintScreen
+                window.addEventListener('keyup', (e) => {
+                    if (e.key === 'PrintScreen') {
+                        navigator.clipboard.writeText('');
+                        alert("צילום מסך חסום ב-Velora.");
+                    }
+                });
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('main-app').classList.add('hidden');
+        }
+
+        // ניהול מודלים
+        window.toggleModal = (id, show) => {
+            const modal = document.getElementById(id);
+            if (show) {
+                modal.classList.remove('hidden');
+                if (id === 'profile-modal') {
+                    document.getElementById('edit-pfp').src = userData.photoURL;
+                    document.getElementById('display-name-input').value = userData.name;
+                    document.getElementById('biz-hours').value = userData.business.hours;
+                    document.getElementById('biz-welcome').value = userData.business.welcome;
+                }
+            } else modal.classList.add('hidden');
+        };
+
+        window.saveProfile = async () => {
+            const newName = document.getElementById('display-name-input').value;
+            const newHours = document.getElementById('biz-hours').value;
+            const newWelcome = document.getElementById('biz-welcome').value;
+
+            await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                name: newName,
+                'business.hours': newHours,
+                'business.welcome': newWelcome
+            });
+            
+            userData.name = newName;
+            document.getElementById('user-display-name').innerText = newName;
+            toggleModal('profile-modal', false);
+            alert("הפרופיל עודכן.");
+        };
+
+        window.removePfp = () => {
+            const initial = userData.name.charAt(0);
+            document.getElementById('edit-pfp').src = `https://ui-avatars.com/api/?name=${initial}&background=random`;
+            alert("התמונה הוסרה. לחץ על שמור כדי לעדכן.");
+        };
+
+        window.resetToGoogle = () => {
+            document.getElementById('edit-pfp').src = auth.currentUser.photoURL;
+        };
+
+        window.logout = () => signOut(auth);
+
+        initAuth();
+    </script>
+</body>
+</html>
+       authDomain: "velora-617fa.firebaseapp.com",
             projectId: "velora-617fa",
             storageBucket: "velora-617fa.firebasestorage.app",
             messagingSenderId: "299931306828",
