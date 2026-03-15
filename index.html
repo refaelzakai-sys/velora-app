@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Velora Ultra - Rafael Digital Official</title>
+    <title>Velora Ultra - Rafael Digital</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -15,173 +15,194 @@
     <style>
         :root { 
             --b: #4da3ff; --bg: #0a0c10; --c: #161b22; --t: #e6edf3; 
-            --g: #8b949e; --r: #ff4d4d; --green: #2ea043; --w-green: #25d366;
-            --nav-bg: #0d1117;
+            --g: #8b949e; --green: #25d366; --w-light: #f8f9fa;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; outline: none; }
         body { 
             background: var(--bg); color: var(--t); font-family: -apple-system, system-ui, sans-serif;
-            height: 100dvh; overflow: hidden;
+            height: 100dvh; overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* מסך כניסה - תיקון לוגו גוגל וקישור רפאל */
+        /* מסך כניסה */
         #login-screen { 
             position: fixed; inset: 0; z-index: 2000; background: var(--bg);
             display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px;
         }
         .v-logo { font-size: 80px; font-weight: 900; color: var(--b); letter-spacing: -4px; margin-bottom: 5px; }
-        .v-sub { font-size: 14px; color: var(--g); letter-spacing: 2px; margin-bottom: 80px; text-transform: uppercase; }
-        
         .g-btn { 
             background: white; color: black; border: none; padding: 18px 30px; border-radius: 50px; 
             font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; 
-            gap: 12px; width: 100%; max-width: 320px; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            gap: 12px; width: 100%; max-width: 320px; justify-content: center; margin-top: 40px;
         }
-        .rafael-link { margin-top: 60px; color: var(--b); text-decoration: none; font-size: 15px; font-weight: 500; }
+
+        /* מסך הרשאות */
+        #perm-overlay { 
+            position: fixed; inset: 0; z-index: 3000; background: rgba(0,0,0,0.9);
+            display: none; flex-direction: column; align-items: center; justify-content: center; padding: 25px;
+        }
+        .perm-box { background: var(--c); padding: 30px; border-radius: 25px; text-align: center; border: 1px solid #333; }
 
         /* ממשק ראשי */
-        #app { display: none; height: 100%; flex-direction: column; }
+        #app { display: none; flex: 1; flex-direction: column; height: 100%; }
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: #0d1117; border-bottom: 1px solid #333; }
         
-        header { 
-            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
-            background: var(--nav-bg); border-bottom: 1px solid #333;
-        }
+        .main-view { flex: 1; overflow-y: auto; background: #010409; }
 
-        /* סרגל סטטוסים */
-        .stories { display: flex; gap: 15px; padding: 15px; overflow-x: auto; background: #010409; border-bottom: 1px solid #222; }
-        .s-item { min-width: 65px; height: 65px; border-radius: 50%; border: 3px solid var(--b); padding: 2px; }
-        .s-item img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-
-        /* רשימת צ'אטים */
-        .chat-list { flex: 1; overflow-y: auto; background: #010409; }
-        .chat-row { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid #161b22; }
-        .chat-av { width: 55px; height: 55px; border-radius: 50%; background: #333; margin-left: 15px; position: relative; }
-        .online-dot { width: 12px; height: 12px; background: var(--green); border-radius: 50%; position: absolute; bottom: 2px; right: 2px; border: 2px solid #000; }
-
-        /* שורת משימות - עיצוב וואטסאפ לפי התמונה ששלחת */
+        /* שורת משימות (לפי התמונה ששלחת) */
         .tab-bar { 
-            height: 85px; background: #f8f9fa; display: flex; border-top: 1px solid #ddd;
+            height: 85px; background: var(--w-light); display: flex; border-top: 1px solid #ddd;
             padding-bottom: env(safe-area-inset-bottom); justify-content: space-around; align-items: center;
         }
-        .tab-item { display: flex; flex-direction: column; align-items: center; color: #555; font-size: 13px; position: relative; flex: 1; cursor: pointer; }
+        .tab-item { display: flex; flex-direction: column; align-items: center; color: #555; font-size: 12px; flex: 1; cursor: pointer; position: relative; }
         .tab-item.active { color: #000; font-weight: bold; }
         
-        /* אייקון צ'אטים עם בועת התראה ירוקה */
-        .chat-icon-container { 
-            background: #dcf8c6; padding: 8px 20px; border-radius: 20px; position: relative;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .badge { 
-            position: absolute; top: -5px; right: 5px; background: var(--green); color: white; 
-            font-size: 10px; padding: 2px 6px; border-radius: 10px; border: 2px solid #f8f9fa;
-        }
+        .chat-icon-bg { background: #dcf8c6; padding: 8px 22px; border-radius: 20px; margin-bottom: 4px; position: relative; }
+        .badge { position: absolute; top: -5px; right: 5px; background: var(--green); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; border: 2px solid var(--w-light); }
+        .nav-svg { width: 24px; height: 24px; }
 
-        /* סמלי שורת המשימות */
-        .nav-icon { width: 24px; height: 24px; margin-bottom: 4px; filter: grayscale(1); opacity: 0.7; }
-        .active .nav-icon { filter: none; opacity: 1; }
+        .user-avatar { width: 26px; height: 26px; border-radius: 50%; background: #ccc; overflow: hidden; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="v-logo">VELORA</div>
-        <div class="v-sub">RAFAEL DIGITAL PLATFORM</div>
-        <button class="g-btn" onclick="login()">
-            <span>כניסה עם Google</span>
-            <svg width="24" height="24" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-        </button>
-        <a href="https://did.li/Rafael-Digital-office" class="rafael-link">נוצר על ידי רפאל דיגיטל</a>
+        <div style="color:var(--g); letter-spacing: 2px;">RAFAEL DIGITAL</div>
+        <button class="g-btn" onclick="handleAuth()">כניסה עם Google</button>
+        <a href="https://did.li/Rafael-Digital-office" style="margin-top:50px; color:var(--b); text-decoration:none; font-size:14px;">נוצר על ידי רפאל דיגיטל</a>
+    </div>
+
+    <div id="perm-overlay">
+        <div class="perm-box">
+            <h2 style="margin-bottom:15px;">כמעט שם...</h2>
+            <p style="color:var(--g); margin-bottom:25px;">כדי שנוכל לסנכרן אנשי קשר, לשלוח קבצים ולהתריע על הודעות, דרוש אישור:</p>
+            <button onclick="requestPermissions()" style="background:var(--b); color:white; border:none; padding:15px 40px; border-radius:50px; font-weight:bold; width:100%;">אשר את כל ההרשאות</button>
+        </div>
     </div>
 
     <div id="app">
         <header>
             <div style="display:flex; align-items:center; gap:10px;">
-                <div id="user-p" style="width:35px; height:35px; border-radius:50%; border:2px solid var(--b); overflow:hidden;"></div>
-                <b id="user-n">Velora</b>
+                <div id="hdr-pic" style="width:35px; height:35px; border-radius:50%; overflow:hidden; border:2px solid var(--b);"></div>
+                <b id="hdr-name"></b>
             </div>
-            <span onclick="logout()" style="color:var(--r); cursor:pointer;">🚪</span>
+            <div style="display:flex; gap:20px; font-size:20px; cursor:pointer;">
+                <span onclick="syncContacts()">👥</span>
+                <span onclick="logout()">🚪</span>
+            </div>
         </header>
 
-        <div class="stories" id="story-view">
-            <div style="min-width:65px; height:65px; border-radius:50%; border:2px dashed #444; display:flex; align-items:center; justify-content:center;">+</div>
+        <div class="main-view" id="content">
+            <div style="padding:20px; text-align:center; color:var(--g); margin-top:50px;">טוען הודעות...</div>
         </div>
-
-        <main class="chat-list" id="chat-engine"></main>
 
         <nav class="tab-bar">
             <div class="tab-item active">
-                <div class="chat-icon-container">
-                    <svg class="nav-icon" viewBox="0 0 24 24" style="filter: none; opacity: 1;"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="#075e54"/></svg>
+                <div class="chat-icon-bg">
+                    <svg class="nav-svg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="#075e54"/></svg>
                     <div class="badge">34</div>
                 </div>
                 <span>צ'אטים</span>
             </div>
             <div class="tab-item">
-                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="black"/></svg>
+                <svg class="nav-svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="#000"/></svg>
                 <span>עדכונים</span>
             </div>
             <div class="tab-item">
-                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="black"/></svg>
+                <svg class="nav-svg" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3z" fill="#000"/></svg>
                 <span>קהילות</span>
             </div>
             <div class="tab-item">
-                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.58l2.2-2.21c.28-.27.36-.66.25-1.01-.36-1.11-.56-2.3-.56-3.53 0-.55-.45-1-1-1H4.01c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.59c0-.55-.45-1-1-1z" fill="black"/></svg>
+                <svg class="nav-svg" viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.58l2.2-2.21c.28-.27.36-.66.25-1.01" fill="none" stroke="#000" stroke-width="2"/></svg>
                 <span>שיחות</span>
             </div>
             <div class="tab-item">
-                <div id="my-mini-av" style="width:26px; height:26px; border-radius:50%; background:#ccc; overflow:hidden;"></div>
+                <div id="mini-av" class="user-avatar"></div>
                 <span>את/ה</span>
             </div>
         </nav>
     </div>
 
     <script>
+        // הכנס כאן את ה-Config שלך
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT.firebaseapp.com",
             databaseURL: "https://YOUR_PROJECT.firebaseio.com",
             projectId: "YOUR_PROJECT_ID",
             storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER",
             appId: "YOUR_APP"
         };
 
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
-
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-        function login() {
+        // פונקציית התחברות עם Redirect למניעת חסימות
+        function handleAuth() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).then(res => {
-                loadApp(res.user);
-            }).catch(e => alert("שגיאה בכניסה. בדוק את ה-Domains ב-Firebase."));
+            provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+            auth.signInWithRedirect(provider);
         }
 
-        function loadApp(user) {
+        // בדיקה לאחר חזרה מהתחברות
+        auth.getRedirectResult().then(res => {
+            if (res.user) {
+                localStorage.setItem('g_token', res.credential.accessToken);
+                initApp(res.user);
+            }
+        });
+
+        auth.onAuthStateChanged(user => { if (user) initApp(user); });
+
+        function initApp(user) {
+            if (Notification.permission === "default") {
+                document.getElementById('perm-overlay').style.display = 'flex';
+            } else {
+                renderUI(user);
+            }
+        }
+
+        async function requestPermissions() {
+            // התראות
+            await Notification.requestPermission();
+            // מצלמה ומיקרופון (אחסון/מדיה)
+            try { await navigator.mediaDevices.getUserMedia({audio:true, video:true}); } catch(e){}
+            
+            document.getElementById('perm-overlay').style.display = 'none';
+            renderUI(auth.currentUser);
+        }
+
+        function renderUI(user) {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
-            document.getElementById('user-n').innerText = user.displayName;
-            document.getElementById('user-p').innerHTML = `<img src="${user.photoURL}" width="100%">`;
-            document.getElementById('my-mini-av').innerHTML = `<img src="${user.photoURL}" width="100%">`;
+            document.getElementById('hdr-name').innerText = user.displayName;
+            document.getElementById('hdr-pic').innerHTML = `<img src="${user.photoURL}" width="100%">`;
+            document.getElementById('mini-av').innerHTML = `<img src="${user.photoURL}" width="100%">`;
+            
+            loadRealtimeData();
+        }
 
-            // מנוע הודעות בזמן אמת
+        function loadRealtimeData() {
             db.ref('chats').on('value', snap => {
-                const list = document.getElementById('chat-engine');
-                list.innerHTML = `
-                    <div class="chat-row">
-                        <div class="chat-av">י<div class="online-dot"></div></div>
-                        <div style="flex:1"><b>יהודה</b><br><small style="color:var(--g)">הקוד עובד רפאל? 🔥</small></div>
-                        <div style="font-size:11px; color:var(--g)">09:41</div>
-                    </div>
-                `;
+                // לוגיקת הצגת ההודעות
             });
         }
 
-        function logout() { auth.signOut().then(() => location.reload()); }
-        auth.onAuthStateChanged(user => { if(user) loadApp(user); });
+        async function syncContacts() {
+            const token = localStorage.getItem('g_token');
+            if(!token) return;
+            alert("מסנכרן אנשי קשר...");
+            const r = await fetch('https://people.googleapis.com/v1/people/me/connections?personFields=names,photos', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const d = await r.json();
+            console.log("Contacts:", d);
+        }
+
+        function logout() { auth.signOut().then(() => { localStorage.clear(); location.reload(); }); }
         window.oncontextmenu = e => e.preventDefault();
     </script>
 </body>
