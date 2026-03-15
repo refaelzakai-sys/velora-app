@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Velora Premium - Rafael Digital Core</title>
+    <title>Velora Premium - Rafael Digital</title>
     
     <style>
         :root { 
@@ -11,213 +11,94 @@
             --bg-chat: #e5ddd5; --bg-main: #f0f2f5; --business: #004d40;
         }
 
-        /* מניעת העתקה וצילום מסך */
-        body.user-restricted {
-            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-        }
-        .user-restricted img.profile-pic { pointer-events: none; } /* מונע הורדת תמונה בקליק ימני */
-
-        body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-main); height: 100vh; overflow: hidden; display: flex; }
+        /* מניעת העתקה וצילום מסך למשתמשים */
+        body.user-restricted { -webkit-user-select: none; user-select: none; }
+        
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg-main); height: 100vh; overflow: hidden; display: flex; }
         .hidden { display: none !important; }
 
-        /* פריסת מסך - סיידבר ימני ואזור צ'אט שמאלי */
-        #sidebar { width: 350px; background: white; display: flex; flex-direction: column; border-left: 1px solid #ddd; }
-        #chat-area { flex: 1; display: flex; flex-direction: column; background: var(--bg-chat); position: relative; }
+        /* מסך כניסה מעוצב */
+        #login-screen {
+            position: fixed; inset: 0; background: linear-gradient(135deg, #1a237e 0%, #000051 100%);
+            z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+            padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);
+            text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+        .google-btn {
+            background: white; color: #444; padding: 12px 25px; border-radius: 5px;
+            border: none; font-size: 16px; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; margin-top: 20px; transition: 0.3s;
+        }
+        .google-btn:hover { background: #f1f1f1; transform: translateY(-2px); }
+        .footer-credit { position: absolute; bottom: 20px; font-size: 12px; opacity: 0.7; }
 
-        /* סננים (כמו בתמונה) */
+        /* סיידבר ופילטרים (לפי התמונה) */
+        #sidebar { width: 350px; background: white; border-left: 1px solid #ddd; display: flex; flex-direction: column; }
         .filter-bar { display: flex; gap: 8px; padding: 10px; overflow-x: auto; background: white; border-bottom: 1px solid #eee; }
-        .filter-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; white-space: nowrap; }
+        .filter-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; white-space: nowrap; font-size: 14px; }
         .filter-btn.active { background: #e7f5e9; color: #15803d; border-color: #15803d; }
-        .filter-btn.add-list { background: #f0f0f0; border: none; font-weight: bold; }
 
-        /* רשימת צ'אטים */
-        .chat-item { padding: 15px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 15px; cursor: pointer; }
-        .chat-item:hover { background: #f5f6f6; }
-        .chat-pic { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
-        .chat-info { flex: 1; }
-        .chat-name { font-weight: bold; display: flex; justify-content: space-between; }
-        .pin-icon { color: #888; font-size: 12px; }
-
-        /* חלון צ'אט והודעות */
-        .chat-header { background: #f0f2f5; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
-        .header-actions button { background: none; border: none; font-size: 20px; cursor: pointer; margin-left: 15px; }
-        #messages-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; }
-        
-        .msg { padding: 8px 12px; margin: 4px 0; border-radius: 8px; max-width: 75%; position: relative; font-size: 15px; line-height: 1.4; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
-        .sent { align-self: flex-end; background: #d9fdd3; border-top-right-radius: 0; }
-        .received { align-self: flex-start; background: white; border-top-left-radius: 0; }
-        .deleted-msg { font-style: italic; color: #888; border: 1px solid #ddd; background: transparent; box-shadow: none; }
-        .msg-time { font-size: 11px; color: #666; margin-top: 4px; text-align: right; display: block; }
-
-        /* מודלים (Modals) להגדרות, פרופיל עסקי וניהול */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 5000; display: flex; justify-content: center; align-items: center; }
-        .modal-content { background: white; width: 90%; max-width: 500px; padding: 20px; border-radius: 12px; max-height: 90vh; overflow-y: auto; }
-        
-        /* אזור מנהל (עברית בלבד) */
-        #admin-panel { direction: rtl; max-width: 800px; }
-        .admin-section { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-right: 4px solid var(--primary); }
-        .btn-ban { background: #d32f2f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin: 2px; }
-
-        /* נגן מדיה מובנה */
-        #media-viewer { position: fixed; inset: 0; background: black; z-index: 9999; display: flex; flex-direction: column; }
-        .media-header { padding: 15px; color: white; display: flex; justify-content: space-between; }
-        .media-content { flex: 1; display: flex; justify-content: center; align-items: center; }
-        .media-content img, .media-content video { max-width: 100%; max-height: 100%; }
-
+        /* חלון צ'אט */
+        #chat-area { flex: 1; display: flex; flex-direction: column; background: var(--bg-chat); }
+        .msg { padding: 10px; margin: 5px; border-radius: 8px; max-width: 75%; position: relative; }
+        .sent { align-self: flex-end; background: #d9fdd3; }
+        .received { align-self: flex-start; background: white; }
     </style>
 </head>
 <body id="app-body">
 
-    <div id="login-screen" style="position:fixed; inset:0; background:white; z-index:10000; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-        <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" width="120">
-        <h2>התחברות ל-Velora</h2>
-        <button onclick="login()" style="padding:10px 20px; background:var(--primary); color:white; border:none; border-radius:5px; font-size:16px; cursor:pointer;">התחבר עם Google</button>
-    </div>
-
-    <div id="sidebar">
-        <div style="background:var(--primary); padding:15px; color:white; display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="openProfileSettings()">
-                <img id="my-avatar" class="chat-pic" style="width:40px; height:40px;" src="">
-                <span id="my-name">טוען...</span>
-            </div>
-            <div id="admin-btn-container" class="hidden">
-                <button onclick="openAdmin()" style="background:var(--accent); border:none; padding:5px; border-radius:3px; font-weight:bold; cursor:pointer;">מנהל</button>
-            </div>
-        </div>
-        
-        <div style="padding:10px; background:#f0f2f5;">
-            <input type="text" placeholder="חיפוש צ'אט או הודעה..." style="width:100%; padding:8px; border-radius:20px; border:none; box-sizing:border-box; outline:none;">
-        </div>
-
-        <div class="filter-bar">
-            <button class="filter-btn active">הכל</button>
-            <button class="filter-btn">לא נקראו <span id="unread-count"></span></button>
-            <button class="filter-btn">מועדפים</button>
-            <button class="filter-btn">קבוצות</button>
-            <button class="filter-btn">קהילות</button>
-            <button class="filter-btn add-list" onclick="alert('יצירת רשימה מותאמת אישית תתווסף בקרוב')">+</button>
-        </div>
-
-        <div id="chats-list" style="flex:1; overflow-y:auto;">
-            </div>
-    </div>
-
-    <div id="chat-area">
-        <div class="chat-header hidden" id="active-chat-header">
-            <div style="display:flex; align-items:center; gap:15px;">
-                <img id="active-chat-pic" class="chat-pic" src="">
-                <div>
-                    <div id="active-chat-name" style="font-weight:bold;">שם איש קשר</div>
-                    <div id="active-chat-status" style="font-size:12px; color:#666;">נראה לאחרונה...</div>
-                </div>
-            </div>
-            <div class="header-actions">
-                <button title="שיחת וידאו" onclick="startCall('video')">📹</button>
-                <button title="שיחה קולית" onclick="startCall('audio')">📞</button>
-                <button title="חיפוש בצ'אט">🔍</button>
-                <button title="אפשרויות">⋮</button>
-            </div>
-        </div>
-
-        <div id="messages-container">
-            <div style="text-align:center; margin:auto; color:#888;">בחר צ'אט כדי להתחיל הודעה</div>
-        </div>
-
-        <div id="input-area" class="hidden" style="padding:15px; background:#f0f0f0; display:flex; gap:10px; align-items:center;">
-            <button title="הוסף קובץ" style="background:none; border:none; font-size:20px; cursor:pointer;">📎</button>
-            <input type="text" id="msgInput" placeholder="הקלד הודעה..." style="flex:1; padding:12px; border-radius:25px; border:none; outline:none;">
-            <button id="sendBtn" style="background:var(--primary); color:white; border:none; border-radius:50%; width:45px; height:45px; cursor:pointer;">➤</button>
-        </div>
-    </div>
-
-    <div id="admin-modal" class="modal-overlay hidden">
-        <div class="modal-content" id="admin-panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary); padding-bottom:10px;">
-                <h2>מרכז שליטה - רפאל דיגיטל</h2>
-                <button onclick="closeModal('admin-modal')">סגור</button>
-            </div>
+    <div id="login-screen">
+        <div class="login-card">
+            <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" width="100" style="margin-bottom: 20px;">
+            <h1 style="margin: 0;">Velora</h1>
+            <p style="opacity: 0.8;">הדור הבא של התקשורת העסקית</p>
             
-            <div class="admin-section">
-                <h3>שידור הודעת מערכת (Broadcast)</h3>
-                <input type="text" id="broadcast-title" placeholder="כותרת ההתראה" style="width:100%; margin-bottom:10px; padding:5px;">
-                <textarea id="broadcast-text" placeholder="תוכן ההודעה לכלל המשתמשים..." style="width:100%; height:60px;"></textarea>
-                <button onclick="sendBroadcast()" style="background:var(--primary); color:white; padding:8px 15px; border:none; margin-top:5px;">שלח לכולם</button>
+            <button class="google-btn" id="loginBtn">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="20">
+                התחברות מהירה עם Google
+            </button>
+            <div id="login-loader" class="hidden" style="margin-top:15px;">מתחבר...</div>
+        </div>
+        <div class="footer-credit">נבנה בגאווה ע"י Rafael Digital</div>
+    </div>
+
+    <div id="main-app" class="hidden" style="display:flex; width:100%;">
+        <div id="sidebar">
+            <div style="background:var(--primary); padding:15px; color:white; display:flex; justify-content:space-between; align-items:center;">
+                <img id="my-avatar" style="width:40px; height:40px; border-radius:50%; border:2px solid white;">
+                <span id="my-name" style="font-weight:bold;"></span>
+                <button onclick="logout()" style="background:none; border:none; color:white; cursor:pointer;">יציאה</button>
             </div>
 
-            <div class="admin-section">
-                <h3>ניהול משתמשים (חסימות ומחיקות)</h3>
-                <div id="admin-users-list">טוען משתמשים...</div>
+            <div class="filter-bar">
+                <button class="filter-btn active">הכל</button>
+                <button class="filter-btn">לא נקראו <span>24</span></button>
+                <button class="filter-btn">מועדפים</button>
+                <button class="filter-btn">קבוצות <span>22</span></button>
+                <button class="filter-btn">+</button>
             </div>
 
-            <div class="admin-section">
-                <h3>דיווחי מערכת ותוכן</h3>
-                <div id="admin-reports-list">אין דיווחים חדשים.</div>
+            <div id="chats-list" style="flex:1; overflow-y:auto; padding:10px;">
+                <div style="text-align:center; color:#888; margin-top:20px;">אין שיחות פעילות</div>
+            </div>
+        </div>
+
+        <div id="chat-area">
+            <div style="margin:auto; text-align:center; color:#888;">
+                <img src="https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png" width="80" style="opacity:0.3; filter:grayscale(1);">
+                <p>בחר צ'אט כדי להתחיל</p>
             </div>
         </div>
     </div>
-
-    <div id="profile-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2 id="profile-title">הגדרות פרופיל</h2>
-            
-            <div style="text-align:center; margin-bottom:15px;">
-                <img id="edit-avatar" class="chat-pic" style="width:100px; height:100px; margin:auto;" src="">
-                <div><button onclick="alert('פתיחת גלריה לבחירת תמונה')">שנה תמונה</button> | <button onclick="removeAvatar()">הסר</button></div>
-            </div>
-
-            <label>שם תצוגה:</label>
-            <input type="text" id="edit-name" style="width:100%; padding:8px; margin-bottom:10px;">
-            
-            <label>אודות (טקסט סטטוס):</label>
-            <input type="text" id="edit-about" style="width:100%; padding:8px; margin-bottom:15px;">
-
-            <h4>פרטיות תמונה ואודות</h4>
-            <select id="privacy-settings" style="width:100%; padding:8px; margin-bottom:15px;">
-                <option value="everyone">כולם</option>
-                <option value="contacts">רק אנשי קשר</option>
-                <option value="contacts_except">אנשי קשר למעט...</option>
-                <option value="nobody">רק אני</option>
-            </select>
-
-            <div id="business-section" style="background:#e8f5e9; padding:10px; border-radius:8px; border:1px solid var(--business);">
-                <h4 style="color:var(--business); margin-top:0;">הגדרות עסק (Velora Business)</h4>
-                <label>שעות פתיחה (חובה):</label>
-                <input type="text" id="biz-hours" placeholder="לדוגמה: א'-ה' 08:00-18:00" style="width:100%; padding:5px; margin-bottom:10px;">
-                
-                <label>הודעת פתיחה אוטומטית (רשות):</label>
-                <textarea id="biz-welcome" style="width:100%; height:50px;"></textarea>
-
-                <label>הודעת מחוץ לשעות הפעילות (רשות):</label>
-                <textarea id="biz-closed" style="width:100%; height:50px;"></textarea>
-                
-                <button onclick="alert('ניהול קטלוג (שם, תמונה, תיאור, קישור) יפתח במסך נפרד')" style="margin-top:10px;">ניהול קטלוג מוצרים</button>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; margin-top:20px;">
-                <button onclick="closeModal('profile-modal')">ביטול</button>
-                <button onclick="saveProfile()" style="background:var(--primary); color:white; padding:8px 20px; border:none; border-radius:5px;">שמור שינויים</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="media-viewer" class="hidden">
-        <div class="media-header">
-            <button onclick="document.getElementById('media-viewer').classList.add('hidden')" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">✕</button>
-            <button style="background:none; border:none; color:white; font-size:24px; cursor:pointer;" title="הורד קובץ">⬇</button>
-        </div>
-        <div class="media-content">
-            <img id="media-img" src="" class="hidden">
-            <video id="media-vid" controls class="hidden"></video>
-        </div>
-    </div>
-
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // הגדרות Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDunrG_booopCpxqpcGEhbqr5n-HY7glHU",
             authDomain: "velora-617fa.firebaseapp.com",
@@ -230,182 +111,60 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        
-        // הגדרת מנהל המערכת (רפאל)
-        const adminEmail = "rplzky7@gmail.com";
-        let currentUserData = null;
-        let activeChatId = null;
+        const provider = new GoogleAuthProvider();
 
-        // --- התחברות וניהול הרשאות ---
-        window.login = async () => {
-            const provider = new GoogleAuthProvider();
-            // בקשת הרשאה לאנשי קשר מגוגל
-            provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
-            
-            try {
-                const res = await signInWithPopup(auth, provider);
-                const user = res.user;
+        // פונקציית התחברות ללא פופ-אפ
+        document.getElementById('loginBtn').onclick = () => {
+            document.getElementById('login-loader').classList.remove('hidden');
+            // אנחנו מבקשים רק פרופיל ואימייל כדי למנוע את האזהרה המפחידה של "גישה לכל החשבון"
+            signInWithRedirect(auth, provider);
+        };
+
+        // בדיקה אם חזרנו מהפניה של גוגל
+        getRedirectResult(auth).catch((error) => {
+            console.error("Redirect error:", error);
+            alert("שגיאה בחיבור: " + error.message);
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // בדיקה ב-Firestore ועדכון פרופיל
                 const userRef = doc(db, "users", user.uid);
                 const userSnap = await getDoc(userRef);
-
-                const isAdmin = (user.email === adminEmail);
-
+                
                 if (!userSnap.exists()) {
-                    // משתמש חדש - יצירת חשבון
-                    const initialData = {
-                        uid: user.uid,
+                    await setDoc(userRef, {
                         name: user.displayName,
                         email: user.email,
-                        photoURL: user.photoURL, // ברירת מחדל מגוגל
-                        veloraId: isAdmin ? "0000000000" : Math.floor(1000000000 + Math.random() * 9000000000).toString(),
-                        role: isAdmin ? "admin" : "user",
-                        accountType: "regular", // regular / business
+                        photoURL: user.photoURL,
                         status: "active",
-                        privacy: { photo: "everyone", about: "everyone" },
-                        businessData: { hours: "", welcomeMsg: "", closedMsg: "" }
-                    };
-                    await setDoc(userRef, initialData);
-                    currentUserData = initialData;
-                } else {
-                    currentUserData = userSnap.data();
-                    if(currentUserData.status === 'blocked') {
-                        alert("חשבונך נחסם. צור קשר עם ההנהלה.");
-                        return;
-                    }
+                        role: user.email === "rplzky7@gmail.com" ? "admin" : "user"
+                    });
                 }
 
-                document.getElementById('login-screen').classList.add('hidden');
-                initUI();
-
-            } catch (error) {
-                console.error("Login failed", error);
-                alert("שגיאה בהתחברות.");
-            }
-        };
-
-        function initUI() {
-            document.getElementById('my-avatar').src = currentUserData.photoURL || 'https://via.placeholder.com/150';
-            document.getElementById('my-name').innerText = currentUserData.name;
-
-            // חסימות פרטיות למשתמש רגיל
-            if (currentUserData.role !== 'admin') {
-                document.getElementById('app-body').classList.add('user-restricted');
-                
-                // מניעת PrintScreen
-                window.addEventListener('keyup', (e) => {
-                    if (e.key === 'PrintScreen') {
-                        navigator.clipboard.writeText(''); 
-                        alert("צילום מסך נחסם עקב הגדרות פרטיות ב-Velora.");
-                    }
-                });
+                showApp(user);
             } else {
-                document.getElementById('admin-btn-container').classList.remove('hidden');
-                loadAdminData();
+                showLogin();
             }
-
-            // טעינת רשימת צ'אטים דמה (Mock Contacts Sync)
-            loadContacts();
-        }
-
-        // --- פונקציות ליבה: צ'אט והודעות ---
-        function loadContacts() {
-            const list = document.getElementById('chats-list');
-            list.innerHTML = `
-                <div class="chat-item" onclick="openChat('global_group', 'קבוצה גלובלית', true)">
-                    <img src="https://via.placeholder.com/50" class="chat-pic">
-                    <div class="chat-info">
-                        <div class="chat-name"><span>קבוצה כללית (בדיקה)</span> <span class="pin-icon">📌</span></div>
-                        <div style="font-size:13px; color:#888;">הודעה אחרונה...</div>
-                    </div>
-                </div>
-            `;
-        }
-
-        window.openChat = (id, name, isGroup) => {
-            activeChatId = id;
-            document.getElementById('active-chat-header').classList.remove('hidden');
-            document.getElementById('input-area').classList.remove('hidden');
-            document.getElementById('active-chat-name').innerText = name;
-            document.getElementById('active-chat-status').innerText = isGroup ? 'קבוצה' : 'מחובר/ת';
-            
-            // במערכת אמיתית: נטען הודעות מ-Firebase Collection לפי ChatID
-            const msgs = document.getElementById('messages-container');
-            msgs.innerHTML = `
-                <div style="text-align:center; margin:10px 0; font-size:12px; color:#666;">
-                    ההודעות מוצפנות מקצה לקצה. (הגדרת אזור זמן נוכחית: ${document.documentElement.lang === 'he' ? 'ירושלים' : 'ארה"ב'})
-                </div>
-            `;
-        };
-
-        document.getElementById('sendBtn').onclick = () => {
-            const input = document.getElementById('msgInput');
-            if (input.value.trim() === '') return;
-            
-            // הוספה ל-UI (הדמיה)
-            const msgs = document.getElementById('messages-container');
-            msgs.innerHTML += `
-                <div class="msg sent">
-                    ${input.value}
-                    <span class="msg-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                </div>
-            `;
-            input.value = '';
-            msgs.scrollTop = msgs.scrollHeight;
-        };
-
-        // --- שיחות קוליות / וידאו ---
-        window.startCall = (type) => {
-            alert(`בקשת תקשורת נשלחה לשרת (WebRTC). סוג שיחה: ${type === 'video' ? 'וידאו (עד 5 משתתפים)' : 'קולית (עד 25 משתתפים)'}`);
-        };
-
-        // --- ניהול (Admin Panel) ---
-        window.openAdmin = () => document.getElementById('admin-modal').classList.remove('hidden');
-        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
-
-        function loadAdminData() {
-            // טעינת משתמשים (הדמיה)
-            document.getElementById('admin-users-list').innerHTML = `
-                <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #ddd;">
-                    <span>משתמש דוגמה (ID: 1234567890)</span>
-                    <div>
-                        <button class="btn-ban" onclick="alert('חסימה ל-1 שעה בוצעה דרך Firebase')">שעה</button>
-                        <button class="btn-ban" onclick="alert('חסימה ל-24 שעות בוצעה')">24ש'</button>
-                        <button class="btn-ban" style="background:black;" onclick="alert('חסימה לצמיתות בוצעה')">לצמיתות</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        window.sendBroadcast = () => {
-            const title = document.getElementById('broadcast-title').value;
-            const text = document.getElementById('broadcast-text').value;
-            if(!text) return alert("אנא הזן תוכן הודעה");
-            alert(`התראת Push מערכתית נשלחה לכלל המשתמשים:\n${title}\n${text}`);
-        };
-
-        // --- הגדרות פרופיל ועסקים ---
-        window.openProfileSettings = () => {
-            document.getElementById('edit-name').value = currentUserData.name;
-            if(currentUserData.accountType === 'business') {
-                document.getElementById('business-section').classList.remove('hidden');
-            }
-            document.getElementById('profile-modal').classList.remove('hidden');
-        };
-
-        window.removeAvatar = () => {
-            document.getElementById('edit-avatar').src = 'https://ui-avatars.com/api/?name=' + currentUserData.name.charAt(0) + '&background=random';
-            alert("תמונת הפרופיל הוסרה ותוחלף באות הראשונה של שמך.");
-        };
-
-        window.saveProfile = () => {
-            alert("הנתונים נשמרו ב-Firebase.");
-            closeModal('profile-modal');
-        };
-
-        // שמירה על יציבות במעבר מצבים
-        onAuthStateChanged(auth, (user) => {
-            if (user && !currentUserData) login(); 
         });
+
+        function showApp(user) {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('my-avatar').src = user.photoURL || 'https://via.placeholder.com/40';
+            document.getElementById('my-name').innerText = user.displayName;
+            
+            if (user.email !== "rplzky7@gmail.com") {
+                document.getElementById('app-body').classList.add('user-restricted');
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('main-app').classList.add('hidden');
+        }
+
+        window.logout = () => signOut(auth);
 
     </script>
 </body>
