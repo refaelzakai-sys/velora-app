@@ -1,106 +1,208 @@
-        <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Velora Premium</title>
+    <title>Velora Official</title>
+    <link rel="manifest" href="manifest.json">
     
-    <link rel="manifest" href="data:application/manifest+json,{'name':'Velora','short_name':'Velora','start_url':'.','display':'standalone','background_color':'#0a0c10','theme_color':'#4da3ff','icons':[{'src':'https://img.uniquemu.co.il/upload2/35gwzs3j/9e00732bba4442cec056fb05ac6dfcea-png.png','sizes':'512x512','type':'image/png'}]}">
-
     <style>
-        :root { 
-            --v-blue: #4da3ff; 
-            --wa-green: #25d366; 
-            --bg-dark: #0a0c10; 
-            --wa-light-green: #d9fdd3;
-            --wa-bg: #f0f2f5;
+        :root {
+            --v-blue: #4da3ff;
+            --v-bg: #0a0c10;
+            --v-card: #161b22;
+            --v-text: #e6edf3;
+            --v-gray: #8b949e;
+            --v-danger: #ff4d4d;
         }
 
-        /* תיקון גובה קריטי למובייל */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { 
-            height: 100dvh; 
-            margin: 0; padding: 0; 
-            background: var(--bg-dark); 
-            overflow: hidden;
-            font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+            height: 100dvh; margin: 0; background: var(--v-bg); color: var(--v-text);
+            font-family: -apple-system, system-ui, sans-serif; overflow: hidden;
         }
 
-        #app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100dvh;
-            background: white;
-            padding-bottom: env(safe-area-inset-bottom); /* מונע חסימה ע"י שורת המשימות */
-        }
+        .app-shell { display: flex; flex-direction: column; height: 100dvh; }
+        .view-content { flex: 1; overflow-y: auto; position: relative; }
 
-        .hidden { display: none !important; }
+        /* עיצוב טקסט וואטסאפ */
+        .msg-text b { font-weight: bold; }
+        .msg-text i { font-style: italic; }
+        .msg-text s { text-decoration: line-through; }
+        .msg-text code { background: rgba(255,255,255,0.1); padding: 2px 4px; border-radius: 4px; font-family: monospace; }
 
-        /* מסך התחברות (מבוסס 312540.jpg) */
-        #login-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100dvh;
-            background: radial-gradient(circle at center, #1a1f2b 0%, #0a0c10 100%);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 2000;
-        }
-        .logo-text { font-size: 75px; font-weight: 900; color: var(--v-blue); letter-spacing: -3px; margin: 0; }
-        .platform-tag { color: white; opacity: 0.6; font-size: 14px; letter-spacing: 2px; margin-bottom: 40px; }
+        /* ניווט תחתון (1773548649642.jpeg) */
+        .v-nav { height: 75px; background: var(--v-card); display: flex; border-top: 1px solid #30363d; padding-bottom: env(safe-area-inset-bottom); }
+        .v-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--v-gray); cursor: pointer; transition: 0.3s; }
+        .v-nav-item.active { color: var(--v-blue); }
+        .v-nav-icon { font-size: 24px; margin-bottom: 4px; }
+        .v-nav-label { font-size: 11px; }
+
+        /* רכיבי ממשק */
+        .fab { position: absolute; bottom: 90px; left: 20px; width: 60px; height: 60px; background: var(--v-blue); border-radius: 18px; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100; }
+        .item-row { display: flex; padding: 15px; align-items: center; border-bottom: 1px solid #21262d; cursor: pointer; }
+        .item-img { width: 50px; height: 50px; border-radius: 50%; background: #30363d; margin-left: 15px; object-fit: cover; }
         
-        .google-btn {
-            background: white; border: none; padding: 15px 35px; border-radius: 50px;
-            font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 12px;
-            cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: transform 0.2s; position: relative; z-index: 2001;
+        /* מודלים */
+        .v-modal { position: fixed; inset: 0; background: var(--v-bg); z-index: 5000; transform: translateY(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        .v-modal.open { transform: translateY(0); }
+        
+        #install-banner { position: fixed; top: 15px; left: 15px; right: 15px; background: var(--v-blue); padding: 15px; border-radius: 12px; display: none; align-items: center; justify-content: space-between; z-index: 9999; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+
+    <div id="install-banner">
+        <span>התקן את Velora במסך הבית</span>
+        <button onclick="installApp()" style="background:white; color:var(--v-blue); border:none; border-radius:8px; padding:8px 15px; font-weight:bold;">התקן</button>
+    </div>
+
+    <div class="app-shell">
+        <header style="padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="color: var(--v-blue); margin: 0; font-size: 24px; letter-spacing: 1px;">VELORA</h1>
+            <div style="display:flex; gap:20px; font-size: 20px;">
+                <span onclick="triggerSearch()">🔍</span>
+                <span id="admin-icon" style="display:none;" onclick="openAdmin()">🛡️</span>
+                <span>⋮</span>
+            </div>
+        </header>
+
+        <main class="view-content" id="app-view"></main>
+
+        <div class="fab" onclick="showActions()">+</div>
+
+        <nav class="v-nav">
+            <div class="v-nav-item active" onclick="loadTab('chats', this)"><div class="v-nav-icon">💬</div><div class="v-nav-label">צ'אטים</div></div>
+            <div class="v-nav-item" onclick="loadTab('updates', this)"><div class="v-nav-icon">⭕</div><div class="v-nav-label">עדכונים</div></div>
+            <div class="v-nav-item" onclick="loadTab('communities', this)"><div class="v-nav-icon">👥</div><div class="v-nav-label">קהילות</div></div>
+            <div class="v-nav-item" onclick="loadTab('calls', this)"><div class="v-nav-icon">📞</div><div class="v-nav-label">שיחות</div></div>
+            <div class="v-nav-item" onclick="loadTab('me', this)"><div class="v-nav-icon">👤</div><div class="v-nav-label">את/ה</div></div>
+        </nav>
+    </div>
+
+    <div id="status-viewer" class="v-modal" style="background:black;">
+        <div id="status-progress-bar" style="position:absolute; top:10px; left:10px; right:10px; height:2px; background:rgba(255,255,255,0.3); border-radius:2px; overflow:hidden; z-index:10;">
+            <div id="status-fill" style="width:0%; height:100%; background:white; transition: width 0.1s linear;"></div>
+        </div>
+        <div style="position:absolute; top:30px; left:20px; right:20px; display:flex; justify-content:space-between; z-index:10;">
+            <div id="status-header" style="display:flex; align-items:center; gap:10px;">
+                <img id="status-pfp" src="" style="width:35px; height:35px; border-radius:50%;">
+                <b id="status-user">שם משתמש</b>
+            </div>
+            <span onclick="closeStatus()" style="font-size:24px; cursor:pointer;">✕</span>
+        </div>
+        <div style="flex:1; display:flex; align-items:center; justify-content:center;">
+            <img id="status-main-img" src="" style="max-width:100%; max-height:80vh;">
+        </div>
+        <div id="status-owner-tools" style="padding:20px; text-align:center; display:none;">
+            <span id="status-views">👁️ 0 צפיות</span>
+            <button onclick="deleteStatus()" style="background:var(--v-danger); border:none; color:white; padding:5px 15px; border-radius:5px; margin-right:15px;">מחק</button>
+        </div>
+    </div>
+
+    <script>
+        // --- מנוע עיצוב טקסט וואטסאפ ---
+        function parseFormatting(text) {
+            return text
+                .replace(/\*(.*?)\*/g, '<b>$1</b>')       // מודגש
+                .replace(/_(.*?)_/g, '<i>$1</i>')         // נטוי
+                .replace(/~(.*?)~/g, '<s>$1</s>')         // קו חוצה
+                .replace(/`(.*?)`/g, '<code>$1</code>');  // קוד
         }
-        .google-btn:active { transform: scale(0.95); }
-        .google-btn img { width: 24px; height: 24px; }
 
-        .credit { margin-top: 50px; color: #888; font-size: 13px; }
-        .credit a { color: var(--v-blue); text-decoration: none; font-weight: bold; }
+        // --- PWA & התקנה ---
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('install-banner').style.display = 'flex';
+        });
 
-        /* כותרת (Header) */
-        .header { 
-            padding: 15px 20px; background: white; border-bottom: 1px solid #eee;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .header h1 { color: var(--wa-green); font-size: 24px; margin: 0; }
-
-        /* אזור תוכן */
-        .content-area { flex: 1; overflow-y: auto; position: relative; background: white; }
-        .tab-pane { height: 100%; width: 100%; }
-
-        /* Empty States (בקשת המשתמש) */
-        .empty-msg {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 80%; color: #888; text-align: center; padding: 30px;
-        }
-        .empty-icon { font-size: 60px; margin-bottom: 15px; opacity: 0.3; }
-
-        /* פריט צ'אט (312192.jpg) */
-        .chat-item { display: flex; padding: 14px 16px; align-items: center; border-bottom: 1px solid #f2f2f2; cursor: pointer; }
-        .pfp { width: 55px; height: 55px; border-radius: 50%; margin-left: 15px; background: #eee; object-fit: cover; }
-        .chat-details { flex: 1; }
-        .chat-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
-        .chat-name { font-weight: bold; font-size: 17px; color: #111b21; }
-        .chat-time { font-size: 12px; color: #667781; }
-        .chat-preview { font-size: 14px; color: #667781; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-        /* כפתור צ'אט חדש (FAB) */
-        .wa-fab {
-            position: absolute; bottom: 20px; left: 20px;
-            width: 60px; height: 60px; background: var(--v-blue);
-            border-radius: 16px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); color: white; font-size: 28px;
-            cursor: pointer; z-index: 100;
+        async function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') document.getElementById('install-banner').style.display = 'none';
+                deferredPrompt = null;
+            }
         }
 
-        /* קטלוג עסקי */
-        .catalog-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
-        .prod-card { border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .prod-img { width: 100%; height: 120px; background: #f8f9fa; object-fit: cover; }
-        .prod-info { padding: 10px; }
-        .prod-price { color: var(--wa-green); font-weight: bold; font-size: 15px; margin-top: 5px; }
+        // --- ניהול טאבים (לפי הצילומים) ---
+        function loadTab(tab, el) {
+            const view = document.getElementById('app-view');
+            document.querySelectorAll('.v-nav-item').forEach(i => i.classList.remove('active'));
+            if(el) el.classList.add('active');
+            view.innerHTML = '';
 
-        /* שורת ניווט תחתונה (312208.jpg) */
+            switch(tab) {
+                case 'chats':
+                    view.innerHTML = `
+                        <div class="item-row">
+                            <img class="item-img" src="https://via.placeholder.com/50">
+                            <div style="flex:1;">
+                                <div style="display:flex; justify-content:space-between;"><b>רפאל דיגיטל</b><span>10:30</span></div>
+                                <div class="msg-text" style="color:var(--v-gray); font-size:14px;">${parseFormatting('היי! הבוט שלך מוכן. נסה לכתוב *שלום*')}</div>
+                            </div>
+                        </div>`;
+                    break;
+                case 'updates':
+                    view.innerHTML = `
+                        <div style="padding:15px;">
+                            <b>סטטוס</b>
+                            <div class="item-row" onclick="alert('העלאת סטטוס...')">
+                                <div class="item-img">👤</div>
+                                <div><b>הסטטוס שלי</b><div style="color:var(--v-gray); font-size:13px;">הקש כדי להוסיף עדכון</div></div>
+                            </div>
+                            <br><b>ערוצים</b>
+                            <p style="color:var(--v-gray); font-size:13px;">מצא ערוצים שמעניינים אותך</p>
+                            <button style="background:var(--v-blue); border:none; width:100%; padding:10px; border-radius:10px; color:white; font-weight:bold;">חקור ערוצים</button>
+                        </div>`;
+                    break;
+                case 'me':
+                    view.innerHTML = `
+                        <div style="padding:30px; text-align:center;">
+                            <img src="https://via.placeholder.com/100" style="border-radius:50%; border:3px solid var(--v-blue);">
+                            <h2 style="margin:10px 0;">רפאל</h2>
+                            <div style="color:var(--v-blue); margin-bottom:20px;">🔗 שתף פרופיל, קבוצות ובוטים</div>
+                        </div>
+                        <div class="item-row">🔑 חשבון</div>
+                        <div class="item-row">🔒 פרטיות</div>
+                        <div class="item-row">🤖 הבוטים שלי</div>
+                        <div class="item-row">💳 מנוי Velora</div>
+                    `;
+                    break;
+            }
+        }
+
+        // --- ניהול סטטוסים ---
+        let statusInterval;
+        function openStatus(data, isOwner) {
+            const modal = document.getElementById('status-viewer');
+            modal.classList.add('open');
+            document.getElementById('status-main-img').src = data.url;
+            document.getElementById('status-user').innerText = data.userName;
+            
+            if(isOwner) document.getElementById('status-owner-tools').style.display = 'block';
+
+            let progress = 0;
+            statusInterval = setInterval(() => {
+                progress += 2;
+                document.getElementById('status-fill').style.width = progress + '%';
+                if(progress >= 100) closeStatus();
+            }, 100);
+        }
+
+        function closeStatus() {
+            document.getElementById('status-viewer').classList.remove('open');
+            clearInterval(statusInterval);
+            document.getElementById('status-fill').style.width = '0%';
+        }
+
+        // אתחול
+        loadTab('chats');
+    </script>
+</body>
+</html>
         .nav-bar { 
             height: 70px; background: #f7f7f7; display: flex; 
             border-top: 1px solid #e0e0e0;
