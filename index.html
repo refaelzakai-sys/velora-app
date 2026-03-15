@@ -1,106 +1,147 @@
-                timestamp: serverTimestamp()
-            });
-            input.value = "";
-        };
-
-        window.uploadMedia = async (file) => {
-            const cloudName = "drvjp5mer";
-            const uploadPreset = "mediaflows_0fe2e516"; 
-            
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', uploadPreset);
-
-            document.getElementById('upload-status').innerText = "מעלה למערכת...";
-
-            try<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Velora | WhatsApp Clone</title>
+    <title>Velora</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#00a884">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/4786/4786093.png">
+
     <style>
-        :root { --whatsapp-green: #00a884; --whatsapp-dark: #075E54; --bg-gray: #efeae2; --msg-sent: #d9fdd3; --msg-received: #ffffff; }
-        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #d1d7db; overflow: hidden; }
-        * { box-sizing: border-box; }
+        :root { --whatsapp-green: #00a884; --bg-gray: #efeae2; --msg-sent: #d9fdd3; --msg-received: #ffffff; }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; overflow: hidden; }
         .hidden { display: none !important; }
 
         /* מסך התחברות */
-        #login-page { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f0f2f5; }
+        #login-page { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .login-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 350px; }
-        .login-card h1 { color: var(--whatsapp-green); margin-bottom: 5px; }
-        #googleLoginBtn { background: white; border: 1px solid #dadce0; padding: 12px; border-radius: 24px; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center; font-weight: 600; font-size: 16px; transition: background 0.2s; margin-top: 20px; }
-        #googleLoginBtn:hover { background: #f8f9fa; }
+        #googleLoginBtn { background: white; border: 1px solid #dadce0; padding: 12px; border-radius: 24px; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center; font-weight: 600; font-size: 16px; margin-top: 20px; }
         .credit { margin-top: 30px; font-size: 13px; color: #667781; }
         .credit a { color: #007bff; text-decoration: none; font-weight: bold; }
 
-        /* מבנה האפליקציה */
-        #main-app { display: flex; height: 100vh; width: 100vw; background: white; max-width: 1600px; margin: 0 auto; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+        /* מבנה אפליקציה */
+        #main-app { display: flex; height: 100vh; width: 100vw; background: white; }
+        .sidebar { width: 30%; background: white; border-left: 1px solid #d1d7db; display: flex; flex-direction: column; }
+        .chat-window { flex: 1; display: flex; flex-direction: column; background: var(--bg-gray); background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
         
-        /* סרגל צד (אנשי קשר) */
-        .sidebar { width: 30%; background: #ffffff; border-left: 1px solid #d1d7db; display: flex; flex-direction: column; }
-        .sidebar-header { background: #f0f2f5; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; height: 60px; }
-        .user-profile { display: flex; align-items: center; gap: 10px; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-        .admin-badge { background: gold; color: black; font-size: 10px; padding: 2px 5px; border-radius: 4px; font-weight: bold; margin-right: 5px; }
-        .chat-list { flex: 1; overflow-y: auto; background: white; }
-        .chat-item { padding: 12px 16px; border-bottom: 1px solid #f2f2f2; cursor: pointer; display: flex; align-items: center; gap: 15px; transition: background 0.2s; background: #f0f2f5; }
+        .header { background: #f0f2f5; padding: 10px 16px; height: 60px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #d1d7db; }
+        .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .message { padding: 8px 12px; border-radius: 8px; max-width: 75%; font-size: 14.5px; box-shadow: 0 1px 0.5px rgba(0,0,0,0.13); }
+        .sent { align-self: flex-end; background: var(--msg-sent); }
+        .received { align-self: flex-start; background: var(--msg-received); }
 
-        /* חלון צ'אט מרכזי */
-        .chat-window { flex: 1; display: flex; flex-direction: column; background: var(--bg-gray); position: relative; }
-        .chat-header { background: #f0f2f5; padding: 10px 16px; display: flex; align-items: center; gap: 15px; height: 60px; border-bottom: 1px solid #d1d7db; }
-        .back-btn { display: none; font-size: 20px; cursor: pointer; border: none; background: none; color: #54656f; padding: 0 10px 0 0; }
+        .input-area { background: #f0f2f5; padding: 10px; display: flex; gap: 10px; }
+        #messageInput { flex: 1; padding: 12px; border: none; border-radius: 8px; outline: none; }
         
-        /* אזור הודעות */
-        .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-attachment: fixed; }
-        .message-wrapper { display: flex; flex-direction: column; max-width: 75%; }
-        .message-wrapper.sent { align-self: flex-end; }
-        .message-wrapper.received { align-self: flex-start; }
-        .message-sender { font-size: 11px; color: #667781; margin-bottom: 2px; margin-right: 5px; }
-        .message { padding: 8px 12px; border-radius: 8px; font-size: 14.5px; position: relative; box-shadow: 0 1px 0.5px rgba(11,20,26,.13); word-wrap: break-word; }
-        .message.sent { background: var(--msg-sent); border-top-left-radius: 0; }
-        .message.received { background: var(--msg-received); border-top-right-radius: 0; }
-        
-        /* תיבת הקלדה */
-        .input-area { background: #f0f2f5; padding: 10px 16px; display: flex; align-items: center; gap: 10px; }
-        #messageInput { flex: 1; padding: 12px 16px; border: none; border-radius: 8px; outline: none; font-size: 15px; font-family: inherit; }
-        #sendBtn { background: none; border: none; cursor: pointer; color: #54656f; display: flex; align-items: center; justify-content: center; padding: 8px; }
-        #sendBtn svg { width: 24px; height: 24px; fill: currentColor; transform: scaleX(-1); }
-
-        /* רספונסיביות למובייל (טלפונים) */
-        @media (max-width: 768px) {
-            #main-app { flex-direction: column; }
-            .sidebar { width: 100%; height: 100%; border: none; }
-            .chat-window { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 10; transition: transform 0.3s ease; }
-            .chat-window.mobile-hidden { transform: translateX(-100%); }
-            .back-btn { display: block; }
-            .message-wrapper { max-width: 90%; }
-        }
+        @media (max-width: 768px) { .sidebar { display: none; } }
     </style>
 </head>
 <body>
 
     <div id="login-page">
         <div class="login-card">
-            <h1>Velora</h1>
-            <p style="color: #667781; margin-top: 0;">התחבר כדי להתחיל לשוחח</p>
+            <h1 style="color: var(--whatsapp-green);">Velora</h1>
+            <p id="login-desc">טוען...</p>
             <button id="googleLoginBtn">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google">
-                התחברות באמצעות גוגל
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+                <span id="login-btn-text">Google</span>
             </button>
-            <div class="credit">
-                From: <a href="https://did.li/Rafael-Digital-office" target="_blank" rel="noopener noreferrer">Rafael Digital</a>
-            </div>
+            <div class="credit">From: <a href="https://did.li/Rafael-Digital-office" target="_blank">Rafael Digital</a></div>
         </div>
     </div>
 
     <div id="main-app" class="hidden">
-        
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="user-profile">
-                    <img id="my-photo" class="user-avatar" src="" alt="פרופיל">
-                    <div>
+        <div class="sidebar">
+            <div class="header">
+                <img id="my-photo" style="width:40px; border-radius:50%;">
+                <button id="logoutBtn" style="border:none; background:none; cursor:pointer;">Logout</button>
+            </div>
+        </div>
+        <div class="chat-window">
+            <div class="header"><strong>Velora Chat</strong></div>
+            <div class="messages-area" id="messagesArea"></div>
+            <form class="input-area" id="messageForm">
+                <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off">
+                <button type="submit" style="background:none; border:none; cursor:pointer; font-size:20px;">➤</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDunrG_booopCpxqpcGEhbqr5n-HY7glHU",
+            authDomain: "velora-617fa.firebaseapp.com",
+            projectId: "velora-617fa",
+            storageBucket: "velora-617fa.firebasestorage.app",
+            messagingSenderId: "299931306828",
+            appId: "1:299931306828:web:ca3c2533144fba6de49de9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        // תרגום אוטומטי
+        const isHe = navigator.language.startsWith('he');
+        document.getElementById('login-desc').innerText = isHe ? "התחבר כדי להתחיל לשוחח" : "Sign in to start chatting";
+        document.getElementById('login-btn-text').innerText = isHe ? "התחברות באמצעות גוגל" : "Sign in with Google";
+        if (!isHe) { document.documentElement.dir = "ltr"; document.documentElement.lang = "en"; }
+
+        // ניהול מצב משתמש
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('login-page').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('my-photo').src = user.photoURL;
+                loadMessages();
+            } else {
+                document.getElementById('login-page').classList.remove('hidden');
+                document.getElementById('main-app').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('googleLoginBtn').onclick = () => signInWithPopup(auth, provider);
+        document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+        function loadMessages() {
+            const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
+            onSnapshot(q, (snap) => {
+                const area = document.getElementById('messagesArea');
+                area.innerHTML = '';
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const div = document.createElement('div');
+                    div.className = `message ${data.uid === auth.currentUser.uid ? 'sent' : 'received'}`;
+                    div.innerText = data.text;
+                    area.appendChild(div);
+                });
+                area.scrollTop = area.scrollHeight;
+            });
+        }
+
+        document.getElementById('messageForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const val = document.getElementById('messageInput').value;
+            if (val.trim()) {
+                document.getElementById('messageInput').value = '';
+                await addDoc(collection(db, "messages"), {
+                    text: val,
+                    uid: auth.currentUser.uid,
+                    createdAt: serverTimestamp()
+                });
+            }
+        };
+    </script>
+</body>
+</html>
                         <strong id="my-name" style="font-size: 14px;"></strong>
                         <span id="adminBadge" class="admin-badge hidden">מנהל</span>
                     </div>
