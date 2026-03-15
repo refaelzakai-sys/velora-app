@@ -1,108 +1,279 @@
-<!DOCTYPE html>
+        // --- מנוע עיצוב טקסט וואטסאפ ---
+ <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Velora Official</title>
-    <link rel="manifest" href="manifest.json">
-    
+    <title>Velora Ultimate OS 7.0 - Full Build</title>
     <style>
-        :root {
-            --v-blue: #4da3ff;
-            --v-bg: #0a0c10;
-            --v-card: #161b22;
-            --v-text: #e6edf3;
-            --v-gray: #8b949e;
-            --v-danger: #ff4d4d;
+        :root { 
+            --v-blue: #4da3ff; --v-bg: #0a0c10; --v-card: #161b22; 
+            --v-text: #e6edf3; --v-gray: #8b949e; --v-red: #ff4d4d; --v-green: #2ecc71;
         }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { 
-            height: 100dvh; margin: 0; background: var(--v-bg); color: var(--v-text);
-            font-family: -apple-system, system-ui, sans-serif; overflow: hidden;
-        }
-
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, sans-serif; }
+        body, html { height: 100dvh; margin: 0; background: var(--v-bg); color: var(--v-text); overflow: hidden; }
+        
         .app-shell { display: flex; flex-direction: column; height: 100dvh; }
-        .view-content { flex: 1; overflow-y: auto; position: relative; }
-
-        /* עיצוב טקסט וואטסאפ */
-        .msg-text b { font-weight: bold; }
-        .msg-text i { font-style: italic; }
-        .msg-text s { text-decoration: line-through; }
-        .msg-text code { background: rgba(255,255,255,0.1); padding: 2px 4px; border-radius: 4px; font-family: monospace; }
-
-        /* ניווט תחתון (1773548649642.jpeg) */
-        .v-nav { height: 75px; background: var(--v-card); display: flex; border-top: 1px solid #30363d; padding-bottom: env(safe-area-inset-bottom); }
-        .v-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--v-gray); cursor: pointer; transition: 0.3s; }
-        .v-nav-item.active { color: var(--v-blue); }
-        .v-nav-icon { font-size: 24px; margin-bottom: 4px; }
-        .v-nav-label { font-size: 11px; }
-
-        /* רכיבי ממשק */
-        .fab { position: absolute; bottom: 90px; left: 20px; width: 60px; height: 60px; background: var(--v-blue); border-radius: 18px; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100; }
-        .item-row { display: flex; padding: 15px; align-items: center; border-bottom: 1px solid #21262d; cursor: pointer; }
-        .item-img { width: 50px; height: 50px; border-radius: 50%; background: #30363d; margin-left: 15px; object-fit: cover; }
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); background: #0d1117; }
         
-        /* מודלים */
-        .v-modal { position: fixed; inset: 0; background: var(--v-bg); z-index: 5000; transform: translateY(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        .view-content { flex: 1; overflow-y: auto; padding-bottom: 100px; }
+        .chat-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; position: relative; }
+        .chat-item.pinned { background: rgba(77, 163, 255, 0.08); border-right: 3px solid var(--v-blue); }
+
+        /* Input Area */
+        .input-area { background: #0d1117; padding: 12px 15px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .preview-box { background: var(--v-card); margin-bottom: 8px; padding: 12px; border-radius: 10px; display: none; border: 1px solid var(--v-blue); }
+        .preview-ctrl { display: flex; justify-content: space-between; align-items: center; font-size: 11px; margin-bottom: 8px; color: var(--v-gray); }
+
+        /* Switch UI */
+        .switch { width: 38px; height: 20px; background: #30363d; border-radius: 10px; position: relative; cursor: pointer; transition: 0.3s; }
+        .switch.on { background: var(--v-green); }
+        .switch::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; }
+        .switch.on::after { left: 20px; }
+
+        /* Admin & Modals */
+        .v-modal { position: fixed; inset: 0; background: var(--v-bg); z-index: 2000; transform: translateY(100%); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 25px; overflow-y: auto; }
         .v-modal.open { transform: translateY(0); }
+        .v-btn { background: var(--v-blue); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; margin: 8px 0; font-size: 14px; }
         
-        #install-banner { position: fixed; top: 15px; left: 15px; right: 15px; background: var(--v-blue); padding: 15px; border-radius: 12px; display: none; align-items: center; justify-content: space-between; z-index: 9999; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        .v-nav { height: 75px; background: var(--v-card); display: flex; border-top: 1px solid rgba(255,255,255,0.1); position: fixed; bottom: 0; width: 100%; }
+        .v-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--v-gray); font-size: 11px; cursor: pointer; }
+        .v-nav-item.active { color: var(--v-blue); }
+
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
 
-    <div id="install-banner">
-        <span>התקן את Velora במסך הבית</span>
-        <button onclick="installApp()" style="background:white; color:var(--v-blue); border:none; border-radius:8px; padding:8px 15px; font-weight:bold;">התקן</button>
+    <div id="login-screen" class="v-modal open" style="justify-content: center; align-items: center; text-align: center;">
+        <h1 style="color:var(--v-blue); font-size: 45px; margin:0; letter-spacing: 2px;">VELORA</h1>
+        <p id="login-status" style="color:var(--v-gray); margin-bottom: 40px;">Initializing System...</p>
+        <button onclick="login('rplzky7@gmail.com')" class="v-btn" style="width:auto; padding: 15px 45px; border-radius: 30px;">כניסה כמנהל מערכת</button>
     </div>
 
     <div class="app-shell">
-        <header style="padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
-            <h1 style="color: var(--v-blue); margin: 0; font-size: 24px; letter-spacing: 1px;">VELORA</h1>
-            <div style="display:flex; gap:20px; font-size: 20px;">
-                <span onclick="triggerSearch()">🔍</span>
-                <span id="admin-icon" style="display:none;" onclick="openAdmin()">🛡️</span>
-                <span>⋮</span>
+        <header>
+            <h2 id="app-title">Velora</h2>
+            <div style="display:flex; gap:15px; align-items: center;">
+                <span id="admin-shield" style="display:none; cursor:pointer; font-size:22px;" onclick="loadTab('admin')">🛡️</span>
+                <span style="font-size:10px; color:var(--v-green); font-weight: bold;">☁️ CLOUD ACTIVE</span>
             </div>
         </header>
 
-        <main class="view-content" id="app-view"></main>
+        <main class="view-content" id="main-view"></main>
 
-        <div class="fab" onclick="showActions()">+</div>
+        <div class="input-area" id="input-section">
+            <div id="link-preview-area" class="preview-box">
+                <div style="font-weight:bold; color:var(--v-blue); font-size: 13px;">תצוגה מקדימה לקישור</div>
+                <div id="preview-url-text" style="font-size: 11px; color:var(--v-gray); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
+            </div>
+            <div id="preview-control-bar" class="preview-ctrl" style="display:none;">
+                <span id="ui-preview-text">שלח עם תצוגה מקדימה?</span>
+                <div class="switch on" id="preview-toggle" onclick="togglePreviewMode()"></div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="chat-input" oninput="processInput(this.value)" style="flex:1; background:var(--v-card); border:none; padding:12px; border-radius:10px; color:white;">
+                <button onclick="performSend()" id="ui-send-btn" style="background:var(--v-blue); border:none; color:white; padding:10px 20px; border-radius:10px; font-weight:bold;">Send</button>
+            </div>
+        </div>
 
-        <nav class="v-nav">
-            <div class="v-nav-item active" onclick="loadTab('chats', this)"><div class="v-nav-icon">💬</div><div class="v-nav-label">צ'אטים</div></div>
-            <div class="v-nav-item" onclick="loadTab('updates', this)"><div class="v-nav-icon">⭕</div><div class="v-nav-label">עדכונים</div></div>
-            <div class="v-nav-item" onclick="loadTab('communities', this)"><div class="v-nav-icon">👥</div><div class="v-nav-label">קהילות</div></div>
-            <div class="v-nav-item" onclick="loadTab('calls', this)"><div class="v-nav-icon">📞</div><div class="v-nav-label">שיחות</div></div>
-            <div class="v-nav-item" onclick="loadTab('me', this)"><div class="v-nav-icon">👤</div><div class="v-nav-label">את/ה</div></div>
-        </nav>
+        <nav class="v-nav" id="main-nav"></nav>
     </div>
 
-    <div id="status-viewer" class="v-modal" style="background:black;">
-        <div id="status-progress-bar" style="position:absolute; top:10px; left:10px; right:10px; height:2px; background:rgba(255,255,255,0.3); border-radius:2px; overflow:hidden; z-index:10;">
-            <div id="status-fill" style="width:0%; height:100%; background:white; transition: width 0.1s linear;"></div>
+    <div id="global-modal" class="v-modal">
+        <h3 id="modal-title">Settings</h3>
+        
+        <div id="admin-only-settings" style="display:none; margin-bottom: 20px; padding: 15px; background: rgba(77, 163, 255, 0.05); border-radius: 12px;">
+            <p style="font-size:12px; color:var(--v-blue); font-weight: bold; margin-bottom: 15px;">ניהול הרשאות קבוצה (מנהל)</p>
+            <div class="setting-row"><span>שליחת טקסט</span> <div class="switch on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="setting-row"><span>שליחת קישורים</span> <div class="switch on" id="restrict-links" onclick="this.classList.toggle('on')"></div></div>
+            <div class="setting-row"><span>מדיה (תמונות/וידאו)</span> <div class="switch on" id="restrict-media" onclick="this.classList.toggle('on')"></div></div>
+            <div class="setting-row"><span>קבצים</span> <div class="switch on" onclick="this.classList.toggle('on')"></div></div>
         </div>
-        <div style="position:absolute; top:30px; left:20px; right:20px; display:flex; justify-content:space-between; z-index:10;">
-            <div id="status-header" style="display:flex; align-items:center; gap:10px;">
-                <img id="status-pfp" src="" style="width:35px; height:35px; border-radius:50%;">
-                <b id="status-user">שם משתמש</b>
-            </div>
-            <span onclick="closeStatus()" style="font-size:24px; cursor:pointer;">✕</span>
+
+        <div id="action-buttons">
+            <button class="v-btn" id="pin-btn" onclick="execPin()">📌 Pin Chat (Unlimited)</button>
+            <button class="v-btn" id="trans-btn" style="display:none;" onclick="execTranslate()">🌐 Translate Message</button>
+            <button class="v-btn" style="background:var(--v-red); display:none;" id="force-del-btn" onclick="execForceDelete()">🗑️ Admin Force Delete</button>
         </div>
-        <div style="flex:1; display:flex; align-items:center; justify-content:center;">
-            <img id="status-main-img" src="" style="max-width:100%; max-height:80vh;">
-        </div>
-        <div id="status-owner-tools" style="padding:20px; text-align:center; display:none;">
-            <span id="status-views">👁️ 0 צפיות</span>
-            <button onclick="deleteStatus()" style="background:var(--v-danger); border:none; color:white; padding:5px 15px; border-radius:5px; margin-right:15px;">מחק</button>
-        </div>
+        
+        <button class="v-btn" style="background:none; color:var(--v-gray)" onclick="closeModals()">ביטול</button>
     </div>
 
     <script>
-        // --- מנוע עיצוב טקסט וואטסאפ ---
-        function parseFormatting(text) {
+        const uiText = {
+            he: { chats: "צ'אטים", send: "שלח", pin: "הצמד צ'אט", unpin: "בטל הצמדה", trans: "תרגם לשפה שלי", del: "מחיקת מנהל", hint: "הקלד הודעה..." },
+            en: { chats: "Chats", send: "Send", pin: "Pin Chat", unpin: "Unpin Chat", trans: "Translate Message", del: "Admin Delete", hint: "Type a message..." }
+        };
+
+        let state = {
+            user: { email: "", isAdmin: false, lang: 'en' },
+            chats: [
+                { id: 1, name: "רפאל (מנהל)", lastMsg: "Velora OS 7.0 online", pinned: true, lang: "he" },
+                { id: 2, name: "Project X", lastMsg: "Need the update ASAP", pinned: false, lang: "en" },
+                { id: 3, name: "Global Community", lastMsg: "Welcome everyone!", pinned: false, lang: "en" }
+            ],
+            previewOn: true,
+            activeChatId: null
+        };
+
+        // 1. זיהוי שפה אוטומטי
+        function autoDetect() {
+            state.user.lang = navigator.language.startsWith('he') ? 'he' : 'en';
+            document.getElementById('login-status').innerText = state.user.lang === 'he' ? "מערכת נטענת..." : "System Loading...";
+        }
+
+        // 2. כניסה מאובטחת
+        function login(email) {
+            state.user.email = email;
+            if(email === 'rplzky7@gmail.com') {
+                state.user.isAdmin = true;
+                state.user.lang = 'he'; // רפאל תמיד מקבל עברית
+            }
+            document.getElementById('login-screen').classList.remove('open');
+            if(state.user.isAdmin) document.getElementById('admin-shield').style.display = 'block';
+            refreshUI();
+        }
+
+        function refreshUI() {
+            const lang = uiText[state.user.lang];
+            document.documentElement.dir = state.user.lang === 'he' ? 'rtl' : 'ltr';
+            document.getElementById('chat-input').placeholder = lang.hint;
+            document.getElementById('ui-send-btn').innerText = lang.send;
+            renderNavigation();
+            loadTab('chats');
+        }
+
+        function renderNavigation() {
+            const lang = uiText[state.user.lang];
+            const nav = document.getElementById('main-nav');
+            nav.innerHTML = `
+                <div class="v-nav-item active" onclick="loadTab('chats')">💬 <span>${lang.chats}</span></div>
+                <div class="v-nav-item" onclick="openAdminSettings()">⚙️ <span>Settings</span></div>
+            `;
+        }
+
+        function loadTab(tab) {
+            const view = document.getElementById('main-view');
+            if(tab === 'admin') {
+                view.innerHTML = `<div style="padding:20px;"><h3>🛡️ פאנל ניהול ראשי</h3><p>שלום רפאל, כל המערכות תקינות.</p></div>`;
+            } else {
+                renderChatItems();
+            }
+        }
+
+        function renderChatItems() {
+            const view = document.getElementById('main-view');
+            const sorted = [...state.chats].sort((a,b) => b.pinned - a.pinned);
+            view.innerHTML = sorted.map(c => `
+                <div class="chat-item ${c.pinned ? 'pinned' : ''}" oncontextmenu="event.preventDefault(); openMenu(${c.id})">
+                    <div style="width:48px; height:48px; background:#30363d; border-radius:50%; margin-left:15px; display:flex; align-items:center; justify-content:center; font-size:20px;">👤</div>
+                    <div style="flex:1">
+                        <div style="display:flex; justify-content:space-between;">
+                            <b>${c.name}</b>
+                            ${c.pinned ? '<span style="color:var(--v-blue)">📌</span>' : ''}
+                        </div>
+                        <div style="font-size:13px; color:var(--v-gray); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:200px;">${c.lastMsg}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 3. מנגנון קישורים ותצוגה מקדימה
+        function processInput(val) {
+            const bar = document.getElementById('preview-control-bar');
+            const box = document.getElementById('link-preview-area');
+            const urlTxt = document.getElementById('preview-url-text');
+            
+            if(val.includes('http') || val.includes('www.')) {
+                bar.style.display = 'flex';
+                if(state.previewOn) {
+                    box.style.display = 'block';
+                    const found = val.match(/(https?:\/\/[^\s]+)/g);
+                    urlTxt.innerText = found ? found[0] : "Detecting link...";
+                }
+            } else {
+                bar.style.display = 'none';
+                box.style.display = 'none';
+            }
+        }
+
+        function togglePreviewMode() {
+            state.previewOn = !state.previewOn;
+            document.getElementById('preview-toggle').classList.toggle('on');
+            document.getElementById('link-preview-area').style.display = state.previewOn ? 'block' : 'none';
+        }
+
+        // 4. שליחה עם בדיקת הרשאות
+        function performSend() {
+            const val = document.getElementById('chat-input').value;
+            const linksBlocked = !document.getElementById('restrict-links').classList.contains('on');
+            
+            if(val.includes('http') && linksBlocked) {
+                alert(state.user.lang === 'he' ? "המנהל חסם שליחת קישורים!" : "Admin has blocked links!");
+                return;
+            }
+
+            alert("Sent " + (state.previewOn ? "with" : "without") + " preview");
+            document.getElementById('chat-input').value = "";
+            processInput("");
+        }
+
+        // 5. תפריט אפשרויות (הצמדה/תרגום/ניהול)
+        function openMenu(id) {
+            state.activeChatId = id;
+            const chat = state.chats.find(c => c.id === id);
+            const lang = uiText[state.user.lang];
+            
+            document.getElementById('modal-title').innerText = chat.name;
+            document.getElementById('pin-btn').innerText = chat.pinned ? lang.unpin : lang.pin;
+            
+            // תרגום חכם - מופיע רק אם השפה שונה מהמכשיר
+            document.getElementById('trans-btn').style.display = (chat.lang !== state.user.lang) ? 'block' : 'none';
+            document.getElementById('trans-btn').innerText = lang.trans;
+            
+            // כלי ניהול לרפאל בלבד
+            document.getElementById('admin-only-settings').style.display = state.user.isAdmin ? 'block' : 'none';
+            document.getElementById('force-del-btn').style.display = state.user.isAdmin ? 'block' : 'none';
+            document.getElementById('force-del-btn').innerText = lang.del;
+            
+            document.getElementById('global-modal').classList.add('open');
+        }
+
+        function execPin() {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            chat.pinned = !chat.pinned;
+            renderChatItems();
+            closeModals();
+        }
+
+        function execTranslate() {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            alert("Translation: " + (chat.lang === 'he' ? "Welcome back Rafael!" : "ברוך הבא חזרה!"));
+            closeModals();
+        }
+
+        function execForceDelete() {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            chat.lastMsg = "*(Deleted by Administrator)*";
+            renderChatItems();
+            closeModals();
+        }
+
+        function openAdminSettings() {
+            if(state.user.isAdmin) openMenu(state.chats[0].id);
+            else alert("Settings coming soon...");
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.v-modal').forEach(m => m.classList.remove('open'));
+        }
+
+        autoDetect();
+    </script>
+</body>
+</html>
+       function parseFormatting(text) {
             return text
                 .replace(/\*(.*?)\*/g, '<b>$1</b>')       // מודגש
                 .replace(/_(.*?)_/g, '<i>$1</i>')         // נטוי
